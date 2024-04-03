@@ -1,34 +1,40 @@
-'use server'
+"use server";
 
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
-import { createClient } from '@/utils/supabase/server'
-
+import { createClient } from "@/utils/supabase/server";
 
 export async function signup(formData: FormData) {
-  const supabase = createClient()
+
+
+  if (formData.get("floating_password") !== formData.get("floating_repeat_password")) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  const supabase = createClient();
 
   // type-casting here for convenience
   // in practice, you should validate your inputs
   const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-    phone: formData.get('phone') as string,
+    email: formData.get("floating_email") as string,
+    password: formData.get("floating_password") as string,
+    phone: formData.get("floating_phone") as string,
     options: {
       data: {
-        first_name: formData.get('first_name') as string,
-        last_name: formData.get('last_name') as string,
+        first_name: formData.get("floating_first_name") as string,
+        last_name: formData.get("floating_last_name") as string,
       },
     },
-  }
+  };
 
-  const { error } = await supabase.auth.signUp(data)
+  const { error } = await supabase.auth.signUp(data);
 
   if (error) {
-    redirect('/error')
+    redirect("/error");
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/')
+  revalidatePath("/", "layout");
+  redirect("/");
 }
