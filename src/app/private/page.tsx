@@ -22,7 +22,7 @@ export default async function PrivatePage() {
 
     const { data, error } = await supabase.auth.getUser()
     if (error || !data?.user) {
-        redirect('/')
+        redirect('/login')
     }
 
     let metadata = data.user.user_metadata
@@ -41,6 +41,7 @@ export default async function PrivatePage() {
                     width={100}
                     height={100}
                     className="avatar"
+                    priority
                 />
 
                 <table className="info">
