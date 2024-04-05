@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import { login } from './actions';
-import { LockClosedIcon, ArrowLeftEndOnRectangleIcon } from '@heroicons/react/24/solid';
+import Image from "next/image"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import grad from "../../../public/grad.png"
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -10,49 +15,90 @@ export default function LoginPage() {
     password: ''
   });
 
+  const [ buttonMessage, setButtonMessage ] = useState('Login')
+
   const handleChange = (e: any) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    setButtonMessage('Logging in...');
+
+
     const formDataToSend = new FormData();
     formDataToSend.append('email', formData.email);
     formDataToSend.append('password', formData.password);
     await login(formDataToSend);
+    setButtonMessage('Login Successful! Redirecting...');
   };
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-gray-900/80 py-12 px-4 sm:px-6 lg:px-8 z-999">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-500">
-              login
-            </h2>
+      <div className="min-h-screen w-full lg:grid lg:grid-cols-2">
+      <div className="flex items-center justify-center py-12">
+        <form className="mx-auto grid w-[350px] gap-6" onSubmit={handleSubmit}>
+          <div className="grid gap-2 text-center">
+            <h1 className="text-3xl font-bold">Login</h1>
+            <p className="text-balance text-muted-foreground">
+              Enter your email below to login to your account
+            </p>
           </div>
-          <form className="max-w-md mx-auto" onSubmit={handleSubmit}>
-            <div className="relative z-0 w-full mb-5 group">
-              <input type="email" name="email" id="floating_email" value={formData.email} onChange={handleChange} className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-              <label htmlFor="floating_email" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email address</label>
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+                onChange={handleChange}
+                value={formData.email}
+              />
             </div>
-            <div className="relative z-0 w-full mb-5 group">
-              <input type="password" name="password" id="floating_password" value={formData.password} onChange={handleChange} className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-              <label htmlFor="floating_password" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Password</label>
+            <div className="grid gap-2">
+              <div className="flex items-center">
+                <Label htmlFor="password">Password</Label>
+                <Link
+                  href="/forgot-password"
+                  className="ml-auto inline-block text-sm underline"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+              <Input 
+              id="password" 
+              type="password" 
+              required 
+              onChange={handleChange}
+              value={formData.password}
+              />
             </div>
-            <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-
-              <span className="flex items-center">
-                <ArrowLeftEndOnRectangleIcon className="h-5 w-5 mr-3" aria-hidden="true" />
-                Submit
-              </span>
-            </button>
-          </form>
-        </div>
+            <Button type="submit" className="w-full">
+              {buttonMessage}
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => alert('Google Login')}>
+              Login with Google
+            </Button>
+          </div>
+          <div className="mt-4 text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="underline">
+              Sign up
+            </Link>
+          </div>
+        </form>
       </div>
+      <div className="hidden lg:block border-l">
+        <Image
+          src="/placeholder.png"
+          alt="Image"
+          height={1920}
+          width={1080}
+          className="h-full w-full object-fit dark:brightness-[0.2] dark:grayscale hidden"
+        />
+      </div>
+    </div>
     </>
   );
 }
