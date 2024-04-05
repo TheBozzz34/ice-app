@@ -23,6 +23,8 @@ export default async function PrivatePage() {
     const { data, error } = await supabase.auth.getUser()
     if (error || !data?.user) {
         redirect('/login')
+    } else {
+
     }
 
     let metadata = data.user.user_metadata
@@ -36,7 +38,7 @@ export default async function PrivatePage() {
                 </h2>
 
                 <Image
-                    src={gravatar.url(data.user.email!, {protocol: 'https', s: '100'})}
+                    src={gravatar.url(data.user.email!, { protocol: 'https', s: '100' })}
                     alt="Profile Picture"
                     width={100}
                     height={100}
@@ -46,12 +48,12 @@ export default async function PrivatePage() {
 
                 <table className="info">
                     <tbody>
-                        
+
                         {data.user.phone && (
                             <tr>
-                            <td>Cell:</td>
-                            <td>{data.user.phone}</td>
-                        </tr>
+                                <td>Cell:</td>
+                                <td>{data.user.phone}</td>
+                            </tr>
                         )}
 
                         <tr>

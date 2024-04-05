@@ -40,7 +40,10 @@ import Page3 from "./pages/3.page"
 import Page4 from "./pages/4.page"
 import Page5 from "./pages/5.page"
 
+import { createClient } from "@/utils/supabase/client"
+
 export default function Dashboard() {
+  const supabase = createClient()
 
   let [activePage, setActivePage] = useState(1)
 
@@ -48,8 +51,23 @@ export default function Dashboard() {
     console.log(activePage)
   }, [activePage])
 
+  async function addData() {
+    const { data, error } = await supabase.from("data").insert([
+      { title: "Hello, world!" },
+    ])
+    console.log(data, error)
+  }
+
+
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+      <Button 
+        onClick={addData}
+        className="absolute top-0 right-0 mt-4 mr-4"
+      >
+        Add Data
+      </Button>
       <div className="hidden border-r bg-muted/40 md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
