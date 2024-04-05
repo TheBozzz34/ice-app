@@ -8,6 +8,20 @@ export default function Home() {
           Get started by editing&nbsp;
           <code className="font-mono font-bold">src/app/page.tsx</code>
         </p>
+
+        <span id="red-alert" className="fixed top-0 right-0 z-50 p-4 text-black bg-red-500 rounded-bl-lg">
+          <span className="font-semibold">Heads up!</span> This page is under development. You can login {" "}
+          <a
+            href="/login"
+            className="underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            here <span aria-hidden="true">→</span>
+          </a>
+
+        </span>
+
         <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
           <a
             className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
@@ -38,7 +52,6 @@ export default function Home() {
           priority
         />
       </div>
-
       <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
         <a
           href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
