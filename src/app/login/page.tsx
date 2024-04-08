@@ -7,7 +7,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import grad from "../../../public/grad.png"
+import logo from "../../../public/Logo-Draft.png"
+import bg from "../../../public/Wheeler-Peak.jpg"
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -35,10 +36,19 @@ export default function LoginPage() {
 
   return (
     <>
+
+      <Image
+        src={bg}
+        alt="Background"
+        className="object-cover w-full h-screen fixed z-[-1] top-0 left-0"
+      />
+
+
+
       <div className="min-h-screen w-full lg:grid lg:grid-cols-2">
       <div className="flex items-center justify-center py-12">
-        <form className="mx-auto grid w-[350px] gap-6" onSubmit={handleSubmit}>
-          <div className="grid gap-2 text-center">
+        <form className="mx-auto grid w-[350px] gap-6 bg-white p-4 rounded-lg" onSubmit={handleSubmit}>
+          <div className="grid gap-2 text-center bg-white">
             <h1 className="text-3xl font-bold">Login</h1>
             <p className="text-balance text-muted-foreground">
               Enter your email below to login to your account
@@ -77,7 +87,7 @@ export default function LoginPage() {
             <Button type="submit" className="w-full">
               {buttonMessage}
             </Button>
-            <Button variant="outline" className="w-full" onClick={() => alert('Google Login')}>
+            <Button variant="outline" className="w-full" disabled>
               Login with Google
             </Button>
           </div>
@@ -89,13 +99,11 @@ export default function LoginPage() {
           </div>
         </form>
       </div>
-      <div className="hidden lg:block border-l">
+      <div className="lg:block">
         <Image
-          src="/placeholder.png"
+          src={logo}
           alt="Image"
-          height={1920}
-          width={1080}
-          className="h-full w-full object-fit dark:brightness-[0.2] dark:grayscale hidden"
+          className="dark:brightness-[0.2] dark:grayscale object-cover h-full float-right"
         />
       </div>
     </div>
