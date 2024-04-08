@@ -232,13 +232,13 @@ export default function Dashboard() {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+        <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
           {activePage === 1 && <Page1 />}
           {activePage === 2 && <Page2 />}
           {activePage === 3 && <Page3 />}
           {activePage === 4 && <Page4 />}
           {activePage === 5 && <Page5 />}
-        </main>
+        </div>
       </div>
     </div>
   )
