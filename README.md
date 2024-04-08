@@ -1,7 +1,8 @@
-jill lepore more like jill lebore
+## Build for dev
 
-- `git clone https://github.com/TheBozzz34/ice-app.git`
+- `git clone git@github.com:TheBozzz34/ice-app.git` ssh cloning wow
 - `npm i`
 - `npm run dev`
 
-- more readme soon
+## Prod build
+- `npm run build`
