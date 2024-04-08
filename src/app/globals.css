@@ -60,3 +60,25 @@
     @apply bg-background text-foreground;
   }
 }
+
+/**** CUSTOM ICE *****/
+main {
+	background: #fff url('/Wheeler-Peak.jpg') top left / cover fixed no-repeat;
+}
+
+.branding {
+}
+
+.button {
+	display: block;
+	background: #056799;
+	color: #fff;
+	padding: 12px;
+	border-radius: 4px;
+}
+.button.inquiry {
+	font-size: 1.2rem;
+	margin: 20px 0 40px;
+}
+.button.login {
+}
