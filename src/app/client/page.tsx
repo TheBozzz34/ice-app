@@ -1,84 +1,245 @@
 "use client"
 
-import { useForm } from 'react-hook-form';
-import { redirect } from 'next/navigation'
-import axios from 'axios';
+import Link from "next/link"
+import {
+  Bell,
+  CircleUser,
+  Home,
+  LineChart,
+  Menu,
+  Package,
+  Package2,
+  Search,
+  ShoppingCart,
+  Users,
+} from "lucide-react"
 
-import { createClient } from '@/utils/supabase/client'
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import Page2 from "./pages/2.page"
+import { useState, useEffect } from "react"
+import Page1 from "./pages/1.page"
+import Page3 from "./pages/3.page"
+import Page4 from "./pages/4.page"
+import Page5 from "./pages/5.page"
 
-export type FormData = {
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone: string;
-    company: string;
-    password: string;
-    repeat_password: string;
-};
+import { createClient } from "@/utils/supabase/client"
+
+export default function Dashboard() {
+  const supabase = createClient()
+
+  let [activePage, setActivePage] = useState(1)
+
+  useEffect(() => {
+    console.log(activePage)
+  }, [activePage])
+
+  async function addData() {
+    const { data, error } = await supabase.from("data").insert([
+      { title: "Hello, world!" },
+    ])
+    console.log(data, error)
+  }
 
 
-export default function ClientPage() {
-    const supabase = createClient()
-    const { register, handleSubmit } = useForm<FormData>();
 
-    async function verifyUser() {
-        const { data, error } = await supabase.auth.getUser()
-        if (error || !data?.user) {
-            redirect('/')
-        }
-    }
-
-    verifyUser()
-
-    async function onSubmit(data: FormData) {
-        const messageJson = {
-            first_name: data.first_name,
-            last_name: data.last_name,
-            email: data.email,
-            phone: data.phone,
-            company: data.company,
-            password: data.password,
-        }
-        const message = JSON.stringify(messageJson)
-    }
-
-    return (
-        <>
-            <form className="max-w-md mx-auto mt-4" onSubmit={handleSubmit(onSubmit)}>
-                <div className="relative z-0 w-full mb-5 group">
-                    <input type="email" {...register('email', { required: true })} id="email" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                    <label htmlFor="email" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email address</label>
-                </div>
-                <div className="relative z-0 w-full mb-5 group">
-                    <input type="password" {...register('password', { required: true })} id="password" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                    <label htmlFor="password" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Password</label>
-                </div>
-                <div className="relative z-0 w-full mb-5 group">
-                    <input type="password" {...register('repeat_password', { required: true })} id="repeat_password" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                    <label htmlFor="repeat_password" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Confirm password</label>
-                </div>
-                <div className="grid md:grid-cols-2 md:gap-6">
-                    <div className="relative z-0 w-full mb-5 group">
-                        <input type="text" id="first_name" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" {...register('first_name', { required: true })} placeholder=" " required />
-                        <label htmlFor="first_name" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">First name</label>
-                    </div>
-                    <div className="relative z-0 w-full mb-5 group">
-                        <input type="text" id="last_name" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" {...register('last_name', { required: true })} placeholder=" " required />
-                        <label htmlFor="last_name" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Last name</label>
-                    </div>
-                </div>
-                <div className="grid md:grid-cols-2 md:gap-6">
-                    <div className="relative z-0 w-full mb-5 group">
-                        <input type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" {...register('phone', { required: true })} id="phone" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                        <label htmlFor="phone" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Phone number (123-456-7890)</label>
-                    </div>
-                    <div className="relative z-0 w-full mb-5 group">
-                        <input type="text" {...register('company', { required: true })} id="company" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                        <label htmlFor="company" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Company (Ex. Google)</label>
-                    </div>
-                </div>
-                <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 sm:px-6 sm:py-3">Sign up</button>
+  return (
+    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+      <Button 
+        onClick={addData}
+        className="absolute top-0 right-0 mt-4 mr-4"
+      >
+        Add Data
+      </Button>
+      <div className="hidden border-r bg-muted/40 md:block">
+        <div className="flex h-full max-h-screen flex-col gap-2">
+          <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+            <Link href="/" className="flex items-center gap-2 font-semibold">
+              <Package2 className="h-6 w-6" />
+              <span className="">Something Inc</span>
+            </Link>
+            <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
+              <Bell className="h-4 w-4" />
+              <span className="sr-only">Toggle notifications</span>
+            </Button>
+          </div>
+          <div className="flex-1">
+            <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+              <Button
+                onClick={() => setActivePage(1)}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 1 ? 'text-primary border' : 'text-muted-foreground' }`}
+              >
+                <Home className="h-4 w-4" />
+                link 1
+              </Button>
+              <Button
+                onClick={() => setActivePage(2)}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 2 ? 'text-primary border' : 'text-muted-foreground' }`}
+              >
+                <ShoppingCart className="h-4 w-4" />
+                link 2
+                <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                  6
+                </Badge>
+              </Button>
+              <Button
+                onClick={() => setActivePage(3)}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 3 ? 'text-muted-primary border' : 'text-muted-foreground' }`}
+              >
+                <Package className="h-4 w-4" />
+                link 3{" "}
+              </Button>
+              <Button
+                onClick={() => setActivePage(4)}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 4 ? 'text-primary border' : 'text-muted-foreground' }`}
+              >
+                <Users className="h-4 w-4" />
+                link 4
+              </Button>
+              <Button
+                onClick={() => setActivePage(5)}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 5 ? 'text-primary border' : 'text-muted-foreground' }`}
+              >
+                <LineChart className="h-4 w-4" />
+                link 5
+              </Button>
+            </nav>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col">
+        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="shrink-0 md:hidden"
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle navigation menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex flex-col">
+              <nav className="grid gap-2 text-lg font-medium">
+                <Link
+                  href="#"
+                  className="flex items-center gap-2 text-lg font-semibold"
+                >
+                  <Package2 className="h-6 w-6" />
+                  <span className="sr-only">Something Inc</span>
+                </Link>
+                <Link
+                  href="#"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                >
+                  <Home className="h-5 w-5" />
+                  Dashboard
+                </Link>
+                <Link
+                  href="#"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  Orders
+                  <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                    6
+                  </Badge>
+                </Link>
+                <Link
+                  href="#"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                >
+                  <Package className="h-5 w-5" />
+                  Products
+                </Link>
+                <Link
+                  href="#"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                >
+                  <Users className="h-5 w-5" />
+                  Customers
+                </Link>
+                <Link
+                  href="#"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                >
+                  <LineChart className="h-5 w-5" />
+                  Analytics
+                </Link>
+              </nav>
+              <div className="mt-auto">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Upgrade to Pro</CardTitle>
+                    <CardDescription>
+                      Unlock all features and get unlimited access to our
+                      support team.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button size="sm" className="w-full">
+                      Upgrade
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </SheetContent>
+          </Sheet>
+          <div className="w-full flex-1">
+            <form>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search something   ..."
+                  className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
+                />
+              </div>
             </form>
-        </>
-    )
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="icon" className="rounded-full">
+                <CircleUser className="h-5 w-5" />
+                <span className="sr-only">Toggle user menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
+        <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+          {activePage === 1 && <Page1 />}
+          {activePage === 2 && <Page2 />}
+          {activePage === 3 && <Page3 />}
+          {activePage === 4 && <Page4 />}
+          {activePage === 5 && <Page5 />}
+        </div>
+      </div>
+    </div>
+  )
 }
