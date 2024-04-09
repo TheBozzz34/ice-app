@@ -14,7 +14,7 @@ export default function Page2() {
               <p className="text-sm text-muted-foreground">
                 smaller text.
               </p>
-              <Button className="mt-4">Add Product</Button>
+              <Button className="mt-4">Add entry</Button>
             </div>
           </div>
           </>
