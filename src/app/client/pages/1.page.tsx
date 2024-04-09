@@ -18,28 +18,28 @@ export default function Page1() {
         console.log("starting flow")
     }
 
-    const handleIceSalesStackerChange = (e) => {
+    const handleIceSalesStackerChange = (e: any) => { // bad type
       const value = parseInt(e.target.value)
       if (!isNaN(value)) {
           setIceSalesStacker(value)
       }
   }
 
-  const handleIceSalesCoinChange = (e) => {
+  const handleIceSalesCoinChange = (e: any) => {
       const value = parseInt(e.target.value)
       if (!isNaN(value)) {
           setIceSalesCoin(value)
       }
   }
 
-  const handleWaterCoinCurrentChange = (e) => {
+  const handleWaterCoinCurrentChange = (e: any) => {
       const value = parseInt(e.target.value)
       if (!isNaN(value)) {
           setWaterCoinCurrent(value)
       }
   }
 
-  const handleWaterBillsSalesChange = (e) => {
+  const handleWaterBillsSalesChange = (e: any) => {
       const value = parseInt(e.target.value)
       if (!isNaN(value)) {
           setWaterBillsSales(value)
