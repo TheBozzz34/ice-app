@@ -4,7 +4,6 @@ export default function Home() {
 	return (
 		<main className="flex min-h-screen flex-col items-center p-24">
 			<div className="branding">
-				{" "}
 				<Image
 					src="/Logo-Draft.png"
 					alt="Wheeler Peak Ice Logo"
@@ -15,7 +14,6 @@ export default function Home() {
 				/>
 			</div>
 
-			{" "}
 			<a
 				href="https://www.mysmartice.com/"
 				className="button inquiry"
@@ -25,7 +23,6 @@ export default function Home() {
 				Dealer Inquiries
 			</a>
 
-			{" "}
 			<a
 				href="/login"
 				className="button login"
