@@ -7,7 +7,7 @@ export default function Home() {
 				<Image
 					src="/Logo-Draft.png"
 					alt="Wheeler Peak Ice Logo"
-					className="dark:invert"
+					className="dark:invert w-auto w-auto"
 					width={100}
 					height={24}
 					priority

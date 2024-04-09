@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 
-
+/* base style for components in @/components/ui/ */
 @layer base {
   :root {
     --background: 0 0% 100%;
