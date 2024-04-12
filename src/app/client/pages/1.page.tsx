@@ -51,6 +51,7 @@ export default function Page1() {
         water_bills_calc_total,
         created_by,
         wf_deposit_coins_total: wf_coins_total,
+        wf_deposit_bills_total: wf_bills_total,
         round_site: site,
         wf_deposit_date: new Date()
       }
