@@ -3,6 +3,7 @@ import { Inter as FontSans } from "next/font/google"
 import "./globals.css";
 import NavBar from "@/components/NavBar/NavBar.component";
 import { cn } from "@/lib/utils"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -27,7 +28,11 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
+        <TooltipProvider
+          delayDuration={200}
+        >
         {children}
+        </TooltipProvider>
         </body>
     </html>
   );

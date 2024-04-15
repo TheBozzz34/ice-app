@@ -69,16 +69,16 @@ export default function Page1() {
   }
 
   async function latestWaterCoin() {
-    /*
+    
     const { data, error } = await supabase.from("rounds").select("*").order("created_at", { ascending: false }).limit(1)
     if (error) {
       console.error(error)
     } else {
       return data[0].water_coin_current
     }
-    */
+    
 
-    return 1863
+    // return 1863
   }
 
 
@@ -136,6 +136,30 @@ export default function Page1() {
               </div>
             </SheetContent>
           </Sheet>
+
+          {/* preivew */}
+          <div className="grid gap-4 p-4">
+            <span className="text-lg font-semibold">Preview</span>
+            <div className="grid gap-2">
+              <span>Ice Sales Info</span>
+              <span>Stacker: {ice_sales_info_stacker}</span>
+              <span>Coin Box: {ice_sales_info_coin_box}</span>
+            </div>
+            <div className="grid gap-2">
+              <span>Water Coin Calculation</span>
+              <span>Box current: {water_coin_calc_current}</span>
+            </div>
+            <div className="grid gap-2">
+              <span>Water Bills Calculation</span>
+              <span>Water Sales: {water_bills_sales}</span>
+            </div>
+            <div className="grid gap-2">
+              <span>Site</span>
+              <span>{site}</span>
+            </div>
+          </div>
+          
+
         </div>
       </div>
     </>
