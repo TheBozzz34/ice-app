@@ -41,33 +41,68 @@ import Page4 from "./pages/4.page"
 import Page5 from "./pages/5.page"
 
 import { createClient } from "@/utils/supabase/client"
+import { navigate } from "./actions"
+
+const ROLE_THRESHOLD = 0
+
+function handleRedirection() {
+  navigate("/login")
+}
+
+function newuserRedirect() {
+  navigate("/newuser")
+}
+
+function handleError(error: any) {
+  console.error(error)
+  handleRedirection()
+}
 
 export default function Dashboard() {
   const supabase = createClient()
 
   let [activePage, setActivePage] = useState(1)
 
-  useEffect(() => {
-    console.log(activePage)
-  }, [activePage])
+  async function auth() {
 
-  async function addData() {
-    const { data, error } = await supabase.from("data").insert([
-      { title: "Hello, world!" },
-    ])
-    console.log(data, error)
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+
+    if (authError) {
+      console.error('Failed to authenticate user:', authError);
+      return handleRedirection();
+    }
+    
+    const userId = authData?.user?.id;
+    if (!userId) {
+      console.error('No user ID found');
+      return handleRedirection();
+    }
+  
+    const { data: userRoles, error: userRolesError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('user', userId);
+  
+    if (userRolesError) {
+      return handleError(userRolesError);
+    }
+  
+    if (userRoles && userRoles.length > 0) {
+      const userRole = userRoles[0].role;
+      if (typeof userRole === 'number' && userRole < ROLE_THRESHOLD) {
+        return handleRedirection();
+      }
+    } else {
+      console.error('No roles found for the user');
+      return newuserRedirect();
+    }
   }
 
+  auth()
 
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <Button 
-        onClick={addData}
-        className="absolute top-0 right-0 mt-4 mr-4"
-      >
-        Add Data
-      </Button>
       <div className="hidden border-r bg-muted/40 md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">

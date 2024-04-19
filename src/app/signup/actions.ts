@@ -5,9 +5,16 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server";
 
+type FormData = {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+};
+
+
+
 export async function signup(formData: FormData) {
-
-
   /* No second password field in the form right now
   if (formData.get("password") !== formData.get("repeat-password")) {
     alert("Passwords do not match!");
@@ -20,23 +27,27 @@ export async function signup(formData: FormData) {
   // type-casting here for convenience
   // custom user metadata can be added here
   const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-    phone: formData.get("floating_phone") as string,
+    email: formData.email,
+    password: formData.password,
     options: {
       data: {
-        first_name: formData.get("first-name") as string,
-        last_name: formData.get("last-name") as string,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
       },
     },
   };
 
-  const { error } = await supabase.auth.signUp(data);
+  const { error: userError, data: userData } = await supabase.auth.signUp(data);
 
-  if (error) {
-    redirect("/error");
+  if (userError) {
+    console.error(userError);
+    console.log("User creation failed");
+    console.log(data);
+    //redirect("/error");
+  } else {
+    console.log("User created successfully");
   }
 
-  revalidatePath("/", "layout");
-  redirect("/");
+  //revalidatePath("/newuser", "layout");
+  //redirect("/newuser");
 }

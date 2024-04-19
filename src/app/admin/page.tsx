@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -76,8 +78,63 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { RoundView } from "@/app/admin/components/rounds.component"
+import { createClient } from "@/utils/supabase/client"
+
+const ROLE_THRESHOLD = 25565;
+
+
+function handleRedirection() {
+  //redirect('/login');
+  console.log('redirecting to login')
+}
+
+function handleError(error: any) {
+  console.error(error);
+  handleRedirection();
+}
 
 export default function Dashboard() {
+
+  const supabase = createClient()
+
+
+  async function auth() {
+
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+
+    if (authError) {
+      console.error('Failed to authenticate user:', authError);
+      return handleRedirection();
+    }
+    
+    const userId = authData?.user?.id;
+    if (!userId) {
+      console.error('No user ID found');
+      return handleRedirection();
+    }
+  
+    const { data: userRoles, error: userRolesError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('user', userId);
+  
+    if (userRolesError) {
+      return handleError(userRolesError);
+    }
+  
+    if (userRoles && userRoles.length > 0) {
+      const userRole = userRoles[0].role;
+      if (typeof userRole === 'number' && userRole < ROLE_THRESHOLD) {
+        return handleRedirection();
+      }
+    } else {
+      console.error('No roles found for the user');
+      return handleRedirection();
+    }
+  }
+
+  auth()
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
