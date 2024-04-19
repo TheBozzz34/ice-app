@@ -17,17 +17,17 @@ export default async function NewUser() {
         .select("*")
         .eq("user", data.user.id);
 
-    if (userError || !userData || userData.length === 0) {
+    if (userError) {
         console.error(userError);
-        redirect("/error");
-    } else {
-        if (userData.length > 0) {
-            redirect("/client");
-        } else {
-            const { data: userData, error: userError } = await supabase
+        //redirect("/error");
+    } else if (userData.length < 0) {
+        const { data: userData, error: userError } = await supabase
             .from("users")
             .insert([{ user: data.user.id, role: 0 }])
             .select();
+        if (userError) {
+            console.error(userError);
+            //redirect("/error");
         }
     }
 }

@@ -62,6 +62,26 @@ export default function Dashboard() {
   const supabase = createClient()
 
   let [activePage, setActivePage] = useState(1)
+  let [rounds, setRounds] = useState([])
+
+  async function getUserRoundsCount() {
+    const { data: user, error: userError } = await supabase.auth.getUser()
+    if (userError || !user?.user) {
+      console.error(userError)
+      return 0
+    }
+
+    const { data, error } = await supabase.from("rounds")
+      .select("id")
+      .eq("created_by", user?.user?.id)
+
+    if (error) {
+      console.error(error)
+      return 0
+    }
+
+    setRounds(data.length)
+  }
 
   async function auth() {
 
@@ -100,6 +120,10 @@ export default function Dashboard() {
 
   auth()
 
+  useEffect(() => {
+    getUserRoundsCount()
+  }, [])
+
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -111,7 +135,7 @@ export default function Dashboard() {
               <span className="">Wheeler Peak Ice</span>
             </Link>
             <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
-              <Bell className="h-4 w-4" />
+              <Menu className="h-4 w-4" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
           </div>
@@ -122,38 +146,17 @@ export default function Dashboard() {
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 1 ? 'text-primary border' : 'text-muted-foreground' }`}
               >
                 <Home className="h-4 w-4" />
-                link 1
+                Create Round
               </Button>
               <Button
                 onClick={() => setActivePage(2)}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 2 ? 'text-primary border' : 'text-muted-foreground' }`}
               >
                 <ShoppingCart className="h-4 w-4" />
-                link 2
+                View Rounds
                 <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                  6
+                  {rounds}
                 </Badge>
-              </Button>
-              <Button
-                onClick={() => setActivePage(3)}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 3 ? 'text-muted-primary border' : 'text-muted-foreground' }`}
-              >
-                <Package className="h-4 w-4" />
-                link 3{" "}
-              </Button>
-              <Button
-                onClick={() => setActivePage(4)}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 4 ? 'text-primary border' : 'text-muted-foreground' }`}
-              >
-                <Users className="h-4 w-4" />
-                link 4
-              </Button>
-              <Button
-                onClick={() => setActivePage(5)}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 5 ? 'text-primary border' : 'text-muted-foreground' }`}
-              >
-                <LineChart className="h-4 w-4" />
-                link 5
               </Button>
             </nav>
           </div>
@@ -186,50 +189,24 @@ export default function Dashboard() {
                 className={`mx-[-0.65rem] flex gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground ${ activePage === 1 ? 'text-primary border' : 'text-muted-foreground' }`}
               >
                 <LineChart className="h-5 w-5" />
-                link 1
+                Create Round
               </Button>
               <Button
                 onClick={() => setActivePage(2)}
                 className={`mx-[-0.65rem] flex gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground ${ activePage === 2 ? 'text-primary border' : 'text-muted-foreground' }`}
               >
                 <LineChart className="h-5 w-5" />
-                link 2
-              </Button>
-              <Button
-                onClick={() => setActivePage(3)}
-                className={`mx-[-0.65rem] flex gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground ${ activePage === 3 ? 'text-primary border' : 'text-muted-foreground' }`}
-              >
-                <LineChart className="h-5 w-5" />
-                link 3
-              </Button>
-              <Button
-                onClick={() => setActivePage(4)}
-                className={`mx-[-0.65rem] flex gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground ${ activePage === 4 ? 'text-primary border' : 'text-muted-foreground' }`}
-              >
-                <LineChart className="h-5 w-5" />
-                link 4
-              </Button>
-              <Button
-                onClick={() => setActivePage(5)}
-                className={`mx-[-0.65rem] flex gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground ${ activePage === 5 ? 'text-primary border' : 'text-muted-foreground' }`}
-              >
-                <LineChart className="h-5 w-5" />
-                link 5
+                View Rounds
               </Button>
               </nav>
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
-            <form>
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search something   ..."
-                  className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-                />
-              </div>
-            </form>
+            <span
+              className="text-lg font-semibold md:text-2xl"
+            >
+              Round Management Dashboard
+            </span>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -239,10 +216,10 @@ export default function Dashboard() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>Round manager</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem>Admin page</DropdownMenuItem>
+              <DropdownMenuItem>Owner page</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Logout</DropdownMenuItem>
             </DropdownMenuContent>
