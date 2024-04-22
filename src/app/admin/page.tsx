@@ -79,6 +79,27 @@ import {
 } from "@/components/ui/tooltip"
 import { RoundView } from "@/app/admin/components/rounds.component"
 import { createClient } from "@/utils/supabase/client"
+import { useEffect, useState } from "react"
+import { Pencil } from "lucide-react"
+
+
+
+function prettyDate(date: string) {
+  return new Date(date).toLocaleDateString('en-US')
+}
+
+const sites = new Map([
+  [0, "Site 1"],
+  [1, "Site 2"],
+  [2, "Site 3"],
+  [3, "Site 4"],
+  [4, "Site 5"],
+  [5, "Site 6"],
+  [6, "Site 7"],
+  [7, "Site 8"],
+  [8, "Site 9"],
+  [9, "Site 10"],
+])
 
 const ROLE_THRESHOLD = 25565;
 
@@ -94,8 +115,29 @@ function handleError(error: any) {
 }
 
 export default function Dashboard() {
-
   const supabase = createClient()
+
+  const [currentRound, setCurrentRound] = useState("")
+
+  const [rounds, setRounds] = useState([])
+
+  async function fetchRounds() {
+    const { data: user, error: userError } = await supabase.auth.getUser();
+    if (userError || !user?.user) {
+      return handleRedirection();
+    }
+
+    const { data, error } = await supabase
+      .from('rounds')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return handleError(error);
+    }
+
+    setRounds(data);
+  }
 
 
   async function auth() {
@@ -135,6 +177,15 @@ export default function Dashboard() {
 
   auth()
 
+  useEffect(() => {
+    fetchRounds()
+  }, [])
+
+  function handleRoundEdit(roundId: string) {
+    setCurrentRound(roundId);
+    console.log('Editing round:', currentRound);
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -144,7 +195,7 @@ export default function Dashboard() {
             className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
           >
             <Package2 className="h-4 w-4 transition-all group-hover:scale-110" />
-            <span className="sr-only">Acme Inc</span>
+            <span className="sr-only">Wheeler Peak Ice</span>
           </Link>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -238,7 +289,7 @@ export default function Dashboard() {
                   className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                 >
                   <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
-                  <span className="sr-only">Acme Inc</span>
+                  <span className="sr-only">Wheeler Peak Ice</span>
                 </Link>
                 <Link
                   href="#"
@@ -351,11 +402,11 @@ export default function Dashboard() {
               <Card x-chunk="dashboard-05-chunk-1">
                 <CardHeader className="pb-2">
                   <CardDescription>This Week</CardDescription>
-                  <CardTitle className="text-4xl">$1,329</CardTitle>
+                  <CardTitle className="text-4xl">$NUMBER</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-xs text-muted-foreground">
-                    +25% from last week
+                    NUMBER% from last week
                   </div>
                 </CardContent>
                 <CardFooter>
@@ -365,11 +416,11 @@ export default function Dashboard() {
               <Card x-chunk="dashboard-05-chunk-2">
                 <CardHeader className="pb-2">
                   <CardDescription>This Month</CardDescription>
-                  <CardTitle className="text-4xl">$5,329</CardTitle>
+                  <CardTitle className="text-4xl">$NUMBER</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-xs text-muted-foreground">
-                    +10% from last month
+                    NUMBER% from last month
                   </div>
                 </CardContent>
                 <CardFooter>
@@ -432,7 +483,7 @@ export default function Dashboard() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Employee</TableHead>
+                          <TableHead>Date</TableHead>
                           <TableHead className="hidden sm:table-cell">
                             Site
                           </TableHead>
@@ -440,172 +491,30 @@ export default function Dashboard() {
                             Status
                           </TableHead>
                           <TableHead className="hidden md:table-cell">
-                            Date
+                            Employee
                           </TableHead>
                           <TableHead className="text-right">Amount</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        <TableRow className="bg-accent">
-                          <TableCell>
-                            <div className="font-medium">Liam Johnson</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                              liam@example.com
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            Sale
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                              Fulfilled
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-06-23
-                          </TableCell>
-                          <TableCell className="text-right">$250.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div className="font-medium">Olivia Smith</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                              olivia@example.com
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            Refund
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="outline">
-                              Declined
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-06-24
-                          </TableCell>
-                          <TableCell className="text-right">$150.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div className="font-medium">Noah Williams</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                              noah@example.com
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            Subscription
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                              Fulfilled
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-06-25
-                          </TableCell>
-                          <TableCell className="text-right">$350.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div className="font-medium">Emma Brown</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                              emma@example.com
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            Sale
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                              Fulfilled
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-06-26
-                          </TableCell>
-                          <TableCell className="text-right">$450.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div className="font-medium">Liam Johnson</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                              liam@example.com
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            Sale
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                              Fulfilled
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-06-23
-                          </TableCell>
-                          <TableCell className="text-right">$250.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div className="font-medium">Liam Johnson</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                              liam@example.com
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            Sale
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                              Fulfilled
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-06-23
-                          </TableCell>
-                          <TableCell className="text-right">$250.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div className="font-medium">Olivia Smith</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                              olivia@example.com
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            Refund
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="outline">
-                              Declined
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-06-24
-                          </TableCell>
-                          <TableCell className="text-right">$150.00</TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div className="font-medium">Emma Brown</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                              emma@example.com
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            Sale
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell">
-                            <Badge className="text-xs" variant="secondary">
-                              Fulfilled
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-06-26
-                          </TableCell>
-                          <TableCell className="text-right">$450.00</TableCell>
-                        </TableRow>
+                      {rounds.map((round) => (
+                          <TableRow key={round.id}>
+                            <TableCell className="font-medium">{prettyDate(round.created_at)}</TableCell>
+                            <TableCell>{sites.get(round.round_site)}</TableCell>
+                            <TableCell>{round.ice_sales_info_stacker}</TableCell>
+                            <TableCell>{round.created_by}</TableCell>
+                            <TableCell className="text-right">{round.ice_sales_info_coin_box}</TableCell>
+                            <Button 
+                            variant="outline" 
+                            size="icon" 
+                            className="h-8 w-8 mt-2 mr-2"
+                            onClick={() => handleRoundEdit(round.id)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Edit</span>
+                            </Button>
+                          </TableRow>
+                        ))}
                       </TableBody>
                     </Table>
                   </CardContent>
@@ -613,7 +522,7 @@ export default function Dashboard() {
               </TabsContent>
             </Tabs>
           </div>
-          <RoundView />
+          {currentRound && <RoundView roundId={currentRound} />}
         </div>
       </div>
     </div>
