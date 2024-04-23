@@ -48,6 +48,7 @@ type Round = {
   id: number
   created_at: string
   site: string
+  wf_deposit_date: string
 }
 
 
@@ -121,7 +122,10 @@ export function RoundView(roundId: any) {
                     </Button>
                   </CardTitle>
                   {round?.created_at && (
-                    <CardDescription>Date: {prettyDateTime(round.created_at)}</CardDescription>
+                    <>
+                    <CardDescription>Round Taken: {prettyDateTime(round.created_at)}</CardDescription>
+                    <CardDescription>Round Deposited: {prettyDateTime(round.wf_deposit_date)}</CardDescription>
+                    </>
                   )}
                 </div>
                 <div className="ml-auto flex items-center gap-1">
@@ -150,38 +154,33 @@ export function RoundView(roundId: any) {
               <CardContent className="p-6 text-sm">
                 <div className="grid gap-3">
                   <div className="font-semibold">Round Details</div>
-                  <ul className="grid gap-3">
-                    <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">
-                        Glimmer Lamps x <span>2</span>
-                      </span>
-                      <span>$250.00</span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">
-                        Aqua Filters x <span>1</span>
-                      </span>
-                      <span>$49.00</span>
-                    </li>
-                  </ul>
+                  
                   <Separator className="my-2" />
                   <ul className="grid gap-3">
                     <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="text-muted-foreground">Deposited Bills</span>
                       <span>$299.00</span>
                     </li>
                     <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Shipping</span>
+                      <span className="text-muted-foreground">Deposited Coins</span>
                       <span>$5.00</span>
                     </li>
-                    <li className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Tax</span>
-                      <span>$25.00</span>
-                    </li>
-                    <li className="flex items-center justify-between font-semibold">
-                      <span className="text-muted-foreground">Total</span>
-                      <span>$329.00</span>
-                    </li>
+
+                    <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="icon" variant="outline" className="h-8 w-8">
+                        eoaebj
+                        <span className="sr-only">Details</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <span>
+                        super cool  math
+                        </span> 
+
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
                   </ul>
                 </div>
                 <Separator className="my-4" />
