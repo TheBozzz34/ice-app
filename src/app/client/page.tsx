@@ -62,7 +62,7 @@ export default function Dashboard() {
   const supabase = createClient()
 
   let [activePage, setActivePage] = useState(1)
-  let [rounds, setRounds] = useState([])
+  let [rounds, setRounds] = useState(0)
 
   async function getUserRoundsCount() {
     const { data: user, error: userError } = await supabase.auth.getUser()
