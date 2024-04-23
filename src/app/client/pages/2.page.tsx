@@ -29,17 +29,25 @@ const sites = new Map([
   [9, "Site 10"],
 ])
 
-function prettyDate(date) {
+function prettyDate(date: string) {
   return new Date(date).toLocaleDateString('en-US')
+}
+
+type Round = {
+  id: number
+  created_at: string
+  round_site: number
+  ice_sales_info_stacker: string
+  ice_sales_info_coin_box: number
 }
 
 export default function Page2() {
   const supabase = createClient()
 
-  const [rounds, setRounds] = useState([])
+  const [rounds, setRounds] = useState<Round[]>([]);
   const [dDate, setdDate] = useState(new Date());
 
-  async function setDepositDate(date) {
+  async function setDepositDate(date: string) {
     console.log(date)
   }
 
