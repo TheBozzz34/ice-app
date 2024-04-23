@@ -82,6 +82,15 @@ import { createClient } from "@/utils/supabase/client"
 import { useEffect, useState } from "react"
 import { Pencil } from "lucide-react"
 
+type Round = {
+  id: number
+  created_at: string
+  round_site: number
+  ice_sales_info_stacker: string
+  created_by: string
+  ice_sales_info_coin_box: number
+}
+
 
 
 function prettyDate(date: string) {
@@ -117,9 +126,9 @@ function handleError(error: any) {
 export default function Dashboard() {
   const supabase = createClient()
 
-  const [currentRound, setCurrentRound] = useState("")
+  const [currentRound, setCurrentRound] = useState<number | null>(null)
 
-  const [rounds, setRounds] = useState([])
+  const [rounds, setRounds] = useState<Round[]>([])
 
   async function fetchRounds() {
     const { data: user, error: userError } = await supabase.auth.getUser();
@@ -181,7 +190,7 @@ export default function Dashboard() {
     fetchRounds()
   }, [])
 
-  function handleRoundEdit(roundId: string) {
+  function handleRoundEdit(roundId: number) {
     setCurrentRound(roundId);
     console.log('Editing round:', currentRound);
   }
