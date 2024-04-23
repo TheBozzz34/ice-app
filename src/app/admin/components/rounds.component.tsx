@@ -44,14 +44,20 @@ import {
 import { useState, useEffect } from "react"
 import { createClient } from "@/utils/supabase/client"
 
+type Round = {
+  id: number
+  created_at: string
+  site: string
+}
 
-function prettyDateTime(date) {
+
+function prettyDateTime(date: string) {
   return new Date(date).toLocaleString("en-US");
 }
 
-export function RoundView(roundId: string) {
+export function RoundView(roundId: any) {
   const supabase = createClient()
-  const [round, setRound] = useState([]);
+  const [round, setRound] = useState<Round>();
   const [site, setSite] = useState([]);
 
   useEffect(() => {
@@ -70,18 +76,18 @@ export function RoundView(roundId: string) {
           console.log(data[0]);
         }
       } catch (error) {
-        console.error("Error fetching round:", error.message);
+        console.error("Error fetching round:", error);
       }
     }
 
     fetchRound();
   }, [roundId]);
 
-  async function setDepositDate(date) {
+  async function setDepositDate(date: string) {
     console.log(date);
   }
 
-  async function getSiteInfo(siteId) {
+  async function getSiteInfo(siteId: string) {
     const { data, error } = await supabase
       .from("sites")
       .select("*")
@@ -104,7 +110,7 @@ export function RoundView(roundId: string) {
               <CardHeader className="flex flex-row items-start bg-muted/50">
                 <div className="grid gap-0.5">
                   <CardTitle className="group flex items-center gap-2 text-lg">
-                    Round {round.id}
+                    Round {round?.id}
                     <Button
                       size="icon"
                       variant="outline"
@@ -114,7 +120,9 @@ export function RoundView(roundId: string) {
                       <span className="sr-only">Copy Round ID</span>
                     </Button>
                   </CardTitle>
-                  <CardDescription>Date: {prettyDateTime(round.created_at)}</CardDescription>
+                  {round?.created_at && (
+                    <CardDescription>Date: {prettyDateTime(round.created_at)}</CardDescription>
+                  )}
                 </div>
                 <div className="ml-auto flex items-center gap-1">
                   <Button size="sm" variant="outline" className="h-8 gap-1">
