@@ -114,7 +114,7 @@ export default function Page1() {
             <span className="text-lg font-semibold">Site</span>
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <Button>Choose Site</Button>
+                <span>Choose Site</span>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => setSite(1)}>Site 1</DropdownMenuItem>
