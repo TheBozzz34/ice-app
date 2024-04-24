@@ -116,6 +116,8 @@ export default function Dashboard() {
       console.error('No roles found for the user');
       return newuserRedirect();
     }
+
+    console.log('User is authenticated with role:', userRoles[0].role);
   }
 
   auth()

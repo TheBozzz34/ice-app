@@ -102,10 +102,14 @@ export default function Page2() {
                   <TableCell>{sites.get(round.round_site)}</TableCell>
                   <TableCell>{round.ice_sales_info_stacker}</TableCell>
                   <TableCell className="text-right">{round.ice_sales_info_coin_box}</TableCell>
-                  <Button variant="outline" size="icon" className="h-8 w-8 mt-2 mr-2">
-                    <Pencil className="h-4 w-4" />
-                    <span className="sr-only">Edit</span>
-                  </Button>
+                  <TableCell>
+                    <Button
+                      onClick={() => setDepositDate(round.created_at)}
+                      className="text-primary"
+                    >
+                      <Pencil className="text-secondary" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

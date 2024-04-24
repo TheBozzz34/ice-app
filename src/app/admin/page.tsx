@@ -113,18 +113,32 @@ const sites = new Map([
 const ROLE_THRESHOLD = 25565;
 
 
-function handleRedirection() {
-  //redirect('/login');
-  console.log('redirecting to login')
-}
 
-function handleError(error: any) {
-  console.error(error);
-  handleRedirection();
-}
 
 export default function Dashboard() {
   const supabase = createClient()
+
+  const [showPermissionDenied, setShowPermissionDenied] = useState(false)
+  const [hasClicked, setHasClicked] = useState(false)
+
+  function handleRedirection() {
+    //redirect('/login');
+    //console.log('redirecting to login')
+   if (!hasClicked) {
+      setShowPermissionDenied(true)
+    }
+  }
+
+  function handleError(error: any) {
+    console.error(error);
+    handleRedirection();
+  }
+
+  useEffect(() => {
+    if (hasClicked) {
+      setShowPermissionDenied(false)
+    }
+  }, [hasClicked])
 
   const [currentRound, setCurrentRound] = useState<number | null>(null)
 
@@ -513,6 +527,7 @@ export default function Dashboard() {
                             <TableCell>{round.ice_sales_info_stacker}</TableCell>
                             <TableCell>{round.created_by}</TableCell>
                             <TableCell className="text-right">{round.ice_sales_info_coin_box}</TableCell>
+                            <TableCell className="text-right">
                             <Button 
                             variant="outline" 
                             size="icon" 
@@ -522,6 +537,7 @@ export default function Dashboard() {
                               <Pencil className="h-4 w-4" />
                               <span className="sr-only">Edit</span>
                             </Button>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -534,6 +550,21 @@ export default function Dashboard() {
           {currentRound && <RoundView roundId={currentRound} />}
         </div>
       </div>
+
+
+
+    <div id="permission-denied" className={`fixed inset-0 z-50 items-center justify-center bg-background bg-opacity-90 ${showPermissionDenied ? 'flex' : 'hidden'}`}>
+      <div className="flex flex-col items-center gap-4 p-4 bg-primary-foreground rounded-lg">
+        <CreditCard className="h-14 w-14 text-primary" />
+        <h2 className="text-lg font-semibold text-primary">Permission Denied</h2>
+        <p className="text-center text-secondary-foreground">
+          You do not have the necessary permissions to view this page. However since this is a demo, you can continue to view the page.
+        </p>
+        <Button onClick={() => setHasClicked(true)}>Continue</Button>
+      </div>
+    </div>
+
+
     </div>
   )
 }
