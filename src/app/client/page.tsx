@@ -220,10 +220,16 @@ export default function Dashboard() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Round manager</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Admin page</DropdownMenuItem>
-              <DropdownMenuItem>Owner page</DropdownMenuItem>
+              <DropdownMenuItem>
+                <a href="/admin">Owner page</a>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <a href="/playboicarti">Super Admin (WIP)</a>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem>
+                <a href="/logout">Logout</a>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
