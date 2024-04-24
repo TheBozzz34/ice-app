@@ -20,6 +20,7 @@ import {
   ShoppingCart,
   Truck,
   Users2,
+  User
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -396,12 +397,19 @@ export default function Dashboard() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>WPI RMS</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem>
+                <a href="/client" className="flex items-center gap-2">
+                  <span>Client Page</span>
+                </a>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem>
+                <a href="/logout" className="flex items-center gap-2">
+                  <span>Logout</span>
+                </a>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
