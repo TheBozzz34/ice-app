@@ -89,10 +89,11 @@ export default function Page2() {
             <TableCaption>A list of your recent rounds.</TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">Date</TableHead>
+                <TableHead className="w-[100px]">date</TableHead>
                 <TableHead>site</TableHead>
                 <TableHead>stacker</TableHead>
-                <TableHead className="text-right">coin box</TableHead>
+                <TableHead>coin box</TableHead>
+                <TableHead>edit round</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -101,7 +102,7 @@ export default function Page2() {
                   <TableCell className="font-medium">{prettyDate(round.created_at)}</TableCell>
                   <TableCell>{sites.get(round.round_site)}</TableCell>
                   <TableCell>{round.ice_sales_info_stacker}</TableCell>
-                  <TableCell className="text-right">{round.ice_sales_info_coin_box}</TableCell>
+                  <TableCell>{round.ice_sales_info_coin_box}</TableCell>
                   <TableCell>
                     <Button
                       onClick={() => setDepositDate(round.created_at)}
