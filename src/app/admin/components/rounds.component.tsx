@@ -56,7 +56,7 @@ function prettyDateTime(date: string) {
   return new Date(date).toLocaleString("en-US");
 }
 
-export function RoundView(roundId: any) {
+export function RoundView(roundId: any) { // need to type
   const supabase = createClient()
   const [round, setRound] = useState<Round>();
   const [site, setSite] = useState([]);
@@ -67,7 +67,7 @@ export function RoundView(roundId: any) {
         const { data, error } = await supabase
           .from("rounds")
           .select("*")
-          .eq("id", roundId.roundId);
+          .eq("id", roundId.roundId);  // this makes me want to vomit
 
         if (error) {
           console.error("Error fetching round:", error);

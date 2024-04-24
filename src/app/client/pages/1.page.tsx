@@ -22,7 +22,7 @@ export default function Page1() {
     }
   }
 
-  let [ice_sales_info_stacker, setIceSalesStacker] = useState(0)
+  let [ice_sales_info_stacker, setIceSalesStacker] = useState(0) // bad, causes lots of NaN errors
   let [ice_sales_info_coin_box, setIceSalesCoinBox] = useState(0)
   let [water_coin_calc_current, setWaterCoinCalcCurrent] = useState(0)
   let [water_bills_sales, setWaterBillsSales] = useState(0)

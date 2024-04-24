@@ -7,7 +7,7 @@ export async function navigate(path: string) {
   redirect(`/${path}`)
 }
 
-export async function revalidatePathFunc(path: string, layout: any) {
+export async function revalidatePathFunc(path: string, layout: string) {
     revalidatePath(`/${path}`, layout)
 }
     

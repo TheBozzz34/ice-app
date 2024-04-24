@@ -18,11 +18,14 @@ export default function LoginPage() {
 
   const [ buttonMessage, setButtonMessage ] = useState('Login')
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: any) => {  // eknewfnofeife i hate any
+    if (e.target === null) {
+      return;
+    }
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: any) => {  // eknewfnofeife i still hate any
     e.preventDefault();
     setButtonMessage('Logging in...');
 
