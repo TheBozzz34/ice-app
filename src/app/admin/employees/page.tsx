@@ -87,9 +87,15 @@ import { Pencil } from "lucide-react"
 type User = {
   id: number
   user: string
-  role: string
+  role: number
   created_at: string
 }
+
+const roles = new Map([
+  [0, "Employee"],
+  [25565, "Owner"],
+  [65535, "Admin"],
+])
 
 
 function prettyDate(date: string) {
@@ -322,14 +328,7 @@ export default function Employees() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <div className="relative ml-auto flex-1 md:grow-0">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-            />
-          </div>
+          <div className="relative ml-auto flex-1 md:grow-0"> {/* Do not remove this div, doing so will hide the avatar */} </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -411,9 +410,9 @@ export default function Employees() {
             <Tabs defaultValue="week">
               <div className="flex items-center">
                 <TabsList>
-                  <TabsTrigger value="week">Week</TabsTrigger>
-                  <TabsTrigger value="month">Month</TabsTrigger>
-                  <TabsTrigger value="year">Year</TabsTrigger>
+                  <TabsTrigger value="week">Site 1</TabsTrigger>
+                  <TabsTrigger value="month">Site 2</TabsTrigger>
+                  <TabsTrigger value="year">Site 3</TabsTrigger>
                 </TabsList>
                 <div className="ml-auto flex items-center gap-2">
                   <DropdownMenu>
@@ -431,13 +430,13 @@ export default function Employees() {
                       <DropdownMenuLabel>Filter by</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuCheckboxItem checked>
-                        Fulfilled
+                        Employee
                       </DropdownMenuCheckboxItem>
                       <DropdownMenuCheckboxItem>
-                        Declined
+                        Owner
                       </DropdownMenuCheckboxItem>
                       <DropdownMenuCheckboxItem>
-                        Refunded
+                        Admin
                       </DropdownMenuCheckboxItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -456,17 +455,22 @@ export default function Employees() {
                   <CardHeader className="px-7">
                     <CardTitle>Rounds</CardTitle>
                     <CardDescription>
-                      Recently completed rounds
+                      Recently completed rounds by your employees.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Date</TableHead>
+                          <TableHead>Created</TableHead>
                           <TableHead className="hidden sm:table-cell">
                             UUID
                           </TableHead>
+
+                          <TableHead className="hidden md:table-cell">
+                            Name
+                          </TableHead>
+
                           <TableHead className="hidden md:table-cell">
                             Role
                           </TableHead>
@@ -482,7 +486,8 @@ export default function Employees() {
                           <TableRow key={user.id}>
                             <TableCell className="font-medium">{prettyDate(user.created_at)}</TableCell>
                             <TableCell>{user.user}</TableCell>
-                            <TableCell>{user.role}</TableCell>
+                            <TableCell>Name here</TableCell>
+                            <TableCell>{roles.get(user.role)} | {user.role}</TableCell>
                             <TableCell>{user.id}</TableCell>
                             <TableCell>
                               <Button
