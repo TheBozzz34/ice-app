@@ -23,7 +23,7 @@ import {
   User,
   Trash,
 } from "lucide-react"
-
+import { CircularProgress } from "@mui/material";
 import { Badge } from "@/components/ui/badge"
 import {
   Breadcrumb,
@@ -109,15 +109,12 @@ const ROLE_THRESHOLD = 25565;
 export default function Employees() {
   const supabase = createClient()
 
-  const [showPermissionDenied, setShowPermissionDenied] = useState(false)
+  const [isFetchingRounds, setIsFetchingRounds] = useState(false);
   const [hasClicked, setHasClicked] = useState(false)
 
   function handleRedirection() {
     //redirect('/login');
-    //console.log('redirecting to login')
-   if (!hasClicked) {
-      setShowPermissionDenied(true)
-    }
+    console.log('redirecting to login')
   }
 
   function handleError(error: any) {
@@ -125,29 +122,38 @@ export default function Employees() {
     handleRedirection();
   }
 
-  useEffect(() => {
-    if (hasClicked) {
-      setShowPermissionDenied(false)
-    }
-  }, [hasClicked])
-
   const [currentRound, setCurrentRound] = useState<number | null>(null)
 
   const [users, setUsers] = useState<User[]>([])
 
   async function fetchUsers() {
     try {
-      const response = await fetch('/api/users');
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
+      setIsFetchingRounds(true);
+      const jwt = (await supabase.auth.getSession()).data.session?.access_token
+      if (!jwt) {
+        throw new Error('No JWT found');
+      } else {
+        console.log('Fetching users with JWT:', jwt);
+        const response = await fetch('/api/users', {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
+        }
+        const data = await response.json();
+        console.log('Fetched users:', data); // Log fetched data
+        setUsers(data);
       }
-      const data = await response.json();
-      setUsers(data);
     } catch (error) {
       console.error('Error fetching users:', error);
+    } finally {
+      setIsFetchingRounds(false);
     }
   }
   
+
 
 
   async function auth() {
@@ -158,22 +164,22 @@ export default function Employees() {
       console.error('Failed to authenticate user:', authError);
       return handleRedirection();
     }
-    
+
     const userId = authData?.user?.id;
     if (!userId) {
       console.error('No user ID found');
       return handleRedirection();
     }
-  
+
     const { data: userRoles, error: userRolesError } = await supabase
       .from('users')
       .select('*')
       .eq('user', userId);
-  
+
     if (userRolesError) {
       return handleError(userRolesError);
     }
-  
+
     if (userRoles && userRoles.length > 0) {
       const userRole = userRoles[0].role;
       if (typeof userRole === 'number' && userRole < ROLE_THRESHOLD) {
@@ -190,6 +196,7 @@ export default function Employees() {
   useEffect(() => {
     // Fetch users when component mounts
     fetchUsers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures this effect runs only once
 
 
@@ -461,11 +468,11 @@ export default function Employees() {
                           <TableHead >
                             Actions
                           </TableHead>
-                          
+
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                      {users.map((user) => (
+                        {users.map((user) => (
                           <TableRow key={user.id}>
                             <TableCell className="font-medium">{prettyDate(user.created_at)}</TableCell>
                             <TableCell>{user.user}</TableCell>
@@ -506,6 +513,12 @@ export default function Employees() {
           {currentRound && <RoundView roundId={currentRound} />}
         </div>
       </div>
+
+      {isFetchingRounds && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-90">
+          <CircularProgress color="primary" /> {/* Use CircularProgress component */}
+        </div>
+      )}
 
     </div>
   )
