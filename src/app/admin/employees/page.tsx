@@ -102,22 +102,8 @@ function prettyDate(date: string) {
   return new Date(date).toLocaleDateString('en-US')
 }
 
-const sites = new Map([
-  [0, "Site 1"],
-  [1, "Site 2"],
-  [2, "Site 3"],
-  [3, "Site 4"],
-  [4, "Site 5"],
-  [5, "Site 6"],
-  [6, "Site 7"],
-  [7, "Site 8"],
-  [8, "Site 9"],
-  [9, "Site 10"],
-])
 
 const ROLE_THRESHOLD = 25565;
-
-
 
 
 export default function Employees() {
@@ -149,23 +135,19 @@ export default function Employees() {
 
   const [users, setUsers] = useState<User[]>([])
 
-  async function fetchRounds() {
-    const { data: user, error: userError } = await supabase.auth.getUser();
-    if (userError || !user?.user) {
-      return handleRedirection();
+  async function fetchUsers() {
+    try {
+      const response = await fetch('/api/users');
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
     }
-
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      return handleError(error);
-    }
-
-    setUsers(data);
   }
+  
 
 
   async function auth() {
@@ -205,10 +187,11 @@ export default function Employees() {
 
   auth()
 
-  // @ts-ignore 
   useEffect(() => {
-    fetchRounds()
-  }, [])
+    // Fetch users when component mounts
+    fetchUsers();
+  }, []); // Empty dependency array ensures this effect runs only once
+
 
   function handleRoundEdit(roundId: number) {
     setCurrentRound(roundId);
@@ -523,22 +506,6 @@ export default function Employees() {
           {currentRound && <RoundView roundId={currentRound} />}
         </div>
       </div>
-
-
-
-    {/*
-    <div id="permission-denied" className={`fixed inset-0 z-50 items-center justify-center bg-background bg-opacity-90 ${showPermissionDenied ? 'flex' : 'hidden'}`}>
-      <div className="flex flex-col items-center gap-4 p-4 bg-primary-foreground rounded-lg">
-        <CreditCard className="h-14 w-14 text-primary" />
-        <h2 className="text-lg font-semibold text-primary">Permission Denied</h2>
-        <p className="text-center text-secondary-foreground">
-          You do not have the necessary permissions to view this page. However since this is a demo, you can continue to view the page.
-        </p>
-        <Button onClick={() => setHasClicked(true)}>Continue</Button>
-      </div>
-    </div>
-    */}
-
 
     </div>
   )
