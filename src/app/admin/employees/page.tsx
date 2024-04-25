@@ -83,15 +83,12 @@ import { createClient } from "@/utils/supabase/client"
 import { useEffect, useState } from "react"
 import { Pencil } from "lucide-react"
 
-type Round = {
+type User = {
   id: number
+  user: string
+  role: string
   created_at: string
-  round_site: number
-  ice_sales_info_stacker: string
-  created_by: string
-  ice_sales_info_coin_box: number
 }
-
 
 
 function prettyDate(date: string) {
@@ -116,7 +113,7 @@ const ROLE_THRESHOLD = 25565;
 
 
 
-export default function Dashboard() {
+export default function Employees() {
   const supabase = createClient()
 
   const [showPermissionDenied, setShowPermissionDenied] = useState(false)
@@ -143,7 +140,7 @@ export default function Dashboard() {
 
   const [currentRound, setCurrentRound] = useState<number | null>(null)
 
-  const [rounds, setRounds] = useState<Round[]>([])
+  const [users, setUsers] = useState<User[]>([])
 
   async function fetchRounds() {
     const { data: user, error: userError } = await supabase.auth.getUser();
@@ -152,7 +149,7 @@ export default function Dashboard() {
     }
 
     const { data, error } = await supabase
-      .from('rounds')
+      .from('users')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -160,7 +157,7 @@ export default function Dashboard() {
       return handleError(error);
     }
 
-    setRounds(data);
+    setUsers(data);
   }
 
 
@@ -201,6 +198,7 @@ export default function Dashboard() {
 
   auth()
 
+  // @ts-ignore 
   useEffect(() => {
     fetchRounds()
   }, [])
@@ -225,7 +223,7 @@ export default function Dashboard() {
             <TooltipTrigger asChild>
               <Link
                 href="/admin"
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
                 <Home className="h-5 w-5" />
                 <span className="sr-only">Rounds</span>
@@ -237,7 +235,7 @@ export default function Dashboard() {
             <TooltipTrigger asChild>
               <Link
                 href="/admin/employees"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
                 <Users2 className="h-5 w-5" />
                 <span className="sr-only">Employees</span>
@@ -292,14 +290,14 @@ export default function Dashboard() {
                   <span className="sr-only text-secondary">Wheeler Peak Ice</span>
                 </Link>
                 <Link
-                  href="/admin"
+                  href="#"
                   className="flex items-center gap-4 px-2.5 text-foreground"
                 >
                   <Home className="h-5 w-5" />
                   Rounds
                 </Link>
                 <Link
-                  href="/admin/employees"
+                  href="#"
                   className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                 >
                   <Users2 className="h-5 w-5" />
@@ -318,7 +316,7 @@ export default function Dashboard() {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="#">Rounds</Link>
+                  <Link href="#">Employees</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
             </BreadcrumbList>
@@ -371,30 +369,28 @@ export default function Dashboard() {
                 className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
               >
                 <CardHeader className="pb-3">
-                  <CardTitle>Your Rounds</CardTitle>
+                  <CardTitle>Your Employees</CardTitle>
                   <CardDescription className="max-w-lg text-balance leading-relaxed">
-                    Introducing Our Dynamic Rounds Dashboard for Seamless
+                    Introducing Our Dynamic Employee Dashboard for Seamless
                     Management and Insightful Analysis.
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
-                  <Button>Create New Round</Button>
+                  <Button>Create New Employee</Button>
                 </CardFooter>
               </Card>
               <Card x-chunk="dashboard-05-chunk-1">
                 <CardHeader className="pb-2">
-                  <CardDescription>This Week</CardDescription>
+                  <CardDescription>Total Employees</CardDescription>
                   <CardTitle className="text-4xl">$NUMBER</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-xs text-muted-foreground">
-                    NUMBER% from last week
+                    NUMBER% other datga
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <Progress value={25} aria-label="25% increase" />
-                </CardFooter>
               </Card>
+              {/*
               <Card x-chunk="dashboard-05-chunk-2">
                 <CardHeader className="pb-2">
                   <CardDescription>This Month</CardDescription>
@@ -409,6 +405,7 @@ export default function Dashboard() {
                   <Progress value={12} aria-label="12% increase" />
                 </CardFooter>
               </Card>
+              */}
             </div>
             <Tabs defaultValue="week">
               <div className="flex items-center">
@@ -467,36 +464,21 @@ export default function Dashboard() {
                         <TableRow>
                           <TableHead>Date</TableHead>
                           <TableHead className="hidden sm:table-cell">
-                            Site
-                          </TableHead>
-                          <TableHead className="hidden sm:table-cell">
-                            Status
+                            UUID
                           </TableHead>
                           <TableHead className="hidden md:table-cell">
-                            Employee
+                            Role
                           </TableHead>
-                          <TableHead className="text-right">Amount</TableHead>
+                          <TableHead className="hidden md:table-cell">ID</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                      {rounds.map((round) => (
-                          <TableRow key={round.id}>
-                            <TableCell className="font-medium">{prettyDate(round.created_at)}</TableCell>
-                            <TableCell>{sites.get(round.round_site)}</TableCell>
-                            <TableCell>{round.ice_sales_info_stacker}</TableCell>
-                            <TableCell>{round.created_by}</TableCell>
-                            <TableCell className="text-right">{round.ice_sales_info_coin_box}</TableCell>
-                            <TableCell className="text-right">
-                            <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="h-8 w-8 mt-2 mr-2"
-                            onClick={() => handleRoundEdit(round.id)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                              <span className="sr-only">Edit</span>
-                            </Button>
-                            </TableCell>
+                      {users.map((user) => (
+                          <TableRow key={user.id}>
+                            <TableCell className="font-medium">{prettyDate(user.created_at)}</TableCell>
+                            <TableCell>{user.user}</TableCell>
+                            <TableCell>{user.role}</TableCell>
+                            <TableCell>{user.id}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
