@@ -20,7 +20,8 @@ import {
   ShoppingCart,
   Truck,
   Users2,
-  User
+  User,
+  Trash,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -470,6 +471,10 @@ export default function Employees() {
                             Role
                           </TableHead>
                           <TableHead className="hidden md:table-cell">ID</TableHead>
+                          <TableHead >
+                            Actions
+                          </TableHead>
+                          
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -479,6 +484,28 @@ export default function Employees() {
                             <TableCell>{user.user}</TableCell>
                             <TableCell>{user.role}</TableCell>
                             <TableCell>{user.id}</TableCell>
+                            <TableCell>
+                              <Button
+                                size="icon"
+                                variant="outline"
+                                className="h-6 w-6"
+                                onClick={() => handleRoundEdit(user.id)}
+                              >
+                                <Pencil className="h-4 w-4" >
+                                </Pencil>
+                              </Button>
+
+                              <Button
+                                size="icon"
+                                variant="outline"
+                                className="h-6 w-6"
+                                onClick={() => handleRoundEdit(user.id)}
+                              >
+                                <Trash className="h-4 w-4 text-red-500">
+                                </Trash>
+                              </Button>
+
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
