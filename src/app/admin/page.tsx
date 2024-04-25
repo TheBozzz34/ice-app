@@ -225,21 +225,9 @@ export default function Dashboard() {
             <TooltipTrigger asChild>
               <Link
                 href="#"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-              >
-                <Home className="h-5 w-5" />
-                <span className="sr-only">Dashboard</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Dashboard</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href="#"
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <ShoppingCart className="h-5 w-5" />
+                <Home className="h-5 w-5" />
                 <span className="sr-only">Rounds</span>
               </Link>
             </TooltipTrigger>
@@ -251,23 +239,11 @@ export default function Dashboard() {
                 href="#"
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <Package className="h-5 w-5" />
-                <span className="sr-only">Products</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Products</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href="#"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-              >
                 <Users2 className="h-5 w-5" />
-                <span className="sr-only">Customers</span>
+                <span className="sr-only">Employees</span>
               </Link>
             </TooltipTrigger>
-            <TooltipContent side="right">Customers</TooltipContent>
+            <TooltipContent side="right">Employees</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -313,42 +289,21 @@ export default function Dashboard() {
                   className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                 >
                   <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
-                  <span className="sr-only">Wheeler Peak Ice</span>
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Home className="h-5 w-5" />
-                  Dashboard
+                  <span className="sr-only text-secondary">Wheeler Peak Ice</span>
                 </Link>
                 <Link
                   href="#"
                   className="flex items-center gap-4 px-2.5 text-foreground"
                 >
-                  <ShoppingCart className="h-5 w-5" />
+                  <Home className="h-5 w-5" />
                   Rounds
                 </Link>
                 <Link
                   href="#"
                   className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                 >
-                  <Package className="h-5 w-5" />
-                  Products
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
                   <Users2 className="h-5 w-5" />
-                  Customers
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <LineChart className="h-5 w-5" />
-                  Settings
+                  Employees
                 </Link>
               </nav>
             </SheetContent>
@@ -561,6 +516,7 @@ export default function Dashboard() {
 
 
 
+    {/*
     <div id="permission-denied" className={`fixed inset-0 z-50 items-center justify-center bg-background bg-opacity-90 ${showPermissionDenied ? 'flex' : 'hidden'}`}>
       <div className="flex flex-col items-center gap-4 p-4 bg-primary-foreground rounded-lg">
         <CreditCard className="h-14 w-14 text-primary" />
@@ -571,6 +527,7 @@ export default function Dashboard() {
         <Button onClick={() => setHasClicked(true)}>Continue</Button>
       </div>
     </div>
+    */}
 
 
     </div>
