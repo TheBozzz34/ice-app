@@ -93,9 +93,8 @@ export default function Dashboard() {
       return handleRedirection();
     }
     
-    const userId = authData?.user?.id;
-    if (!userId) {
-      console.error('No user ID found');
+    if (!authData) {
+      console.error('No user data found');
       return handleRedirection();
     }
   
@@ -103,12 +102,14 @@ export default function Dashboard() {
       .from('users')
       .select('*')
       .eq('email', authData?.user?.email);
+
   
     if (userRolesError) {
       return handleError(userRolesError);
     }
   
     if (userRoles && userRoles.length > 0) {
+      console.log('User roles:', userRoles);
       const userRole = userRoles[0].role;
       if (typeof userRole === 'number' && userRole < ROLE_THRESHOLD) {
         return handleRedirection();

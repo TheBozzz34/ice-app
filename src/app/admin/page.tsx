@@ -122,6 +122,7 @@ export default function Dashboard() {
 
   const [isFetchingRounds, setIsFetchingRounds] = useState(false); // New state variable for fetching status
   const [hasClicked, setHasClicked] = useState(false)
+  const [hasAuthenticated, setHasAuthenticated] = useState(false)
 
   function handleRedirection() {
     //redirect('/login');
@@ -183,7 +184,7 @@ export default function Dashboard() {
     const { data: userRoles, error: userRolesError } = await supabase
       .from('users')
       .select('*')
-      .eq('user', userId);
+      .eq('email', authData?.user?.email);
 
     if (userRolesError) {
       return handleError(userRolesError);
@@ -191,8 +192,9 @@ export default function Dashboard() {
 
     if (userRoles && userRoles.length > 0) {
       const userRole = userRoles[0].role;
-      if (typeof userRole === 'number' && userRole < ROLE_THRESHOLD) {
-        return handleRedirection();
+      if (typeof userRole === 'number' && userRole >= ROLE_THRESHOLD) {
+        console.log('User is authenticated with role:', userRole);
+        setHasAuthenticated(true);
       }
     } else {
       console.error('No roles found for the user');
@@ -200,7 +202,11 @@ export default function Dashboard() {
     }
   }
 
-  auth()
+  useEffect(() => {
+    if (!hasAuthenticated) {
+      auth();
+    }
+  }, [])
 
   useEffect(() => {
     fetchRounds()
@@ -344,7 +350,7 @@ export default function Dashboard() {
                     className="overflow-hidden rounded-full"
                   >
                     <Image
-                      src="/placeholder-user.jpg"
+                      src="/placeholder.jpg"
                       width={36}
                       height={36}
                       alt="Avatar"
