@@ -14,67 +14,124 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from 'react';
+import { createClient } from "@/utils/supabase/client";
 
 
 export default function LoginForm() {
+    const supabase = createClient();
+    const [isUserValid, setIsUserValid] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-        first_name: '',
-        last_name: ''
     });
+
+    async function startSignup() {
+        console.log('Starting signup');
+        const { data: inviteData, error: inviteError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', formData.email);
+
+        if (inviteError) {
+            setShowError(true);
+            setErrorMessage("Error checking for invite " + inviteError.message);
+            setIsUserValid(false);
+            //redirect("/error");
+        } else {
+            if (inviteData.length > 0) {
+                setIsUserValid(true);
+            }
+        }
+
+
+        if (!isUserValid) {
+            setShowError(true);
+            setErrorMessage("User is not invited");
+            return;
+        }
+
+
+        // type-casting here for convenience
+        // custom user metadata can be added here
+        const data = {
+            email: formData.email,
+            password: formData.password
+        };
+
+        const { error: userError, data: userData } = await supabase.auth.signUp(data);
+
+        if (userError) {
+            setShowError(true);
+            setErrorMessage(userError.message);
+        } else {
+            console.log("User created successfully");
+            setShowError(false);
+            setShowSuccess(true);
+            setSuccessMessage("User created successfully");
+            setFormData({
+                email: '',
+                password: ''
+            });
+        }
+
+    }
+
 
 
     return (
-        <Card className="mx-auto max-w-sm">
-            <CardHeader>
-                <CardTitle className="text-xl">Sign Up</CardTitle>
-                <CardDescription>
-                    Enter your information to create an account
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className='grid gap-4'> {/* FTODO: ix the alignment of the form */}
-                    <form className="grid gap-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="first-name">First name</Label>
-                                <Input id="first-name" placeholder="Max" required value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="last-name">Last name</Label>
-                                <Input id="last-name" placeholder="Robinson" required value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} />
-                            </div>
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="m@example.com"
-                                required
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Password</Label>
-                            <Input id="password" type="password" placeholder="********" required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
-                        </div>
-                        <Button type="submit" className="w-full" onClick={(e) => { e.preventDefault(); signup(formData) }}>
-                            Create an account
-                        </Button>
-                    </form>
-
-                    <div className="mt-4 text-center text-sm">
-                        Already have an account?{" "}
-                        <Link href="#" className="underline">
-                            Sign in
-                        </Link>
-                    </div>
-
+        <div className='grid gap-4 w-full max-w-md mx-auto p-4'>
+            <div className="grid gap-4 my-4">
+                <div className="grid gap-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        placeholder="m@example.com"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
                 </div>
-            </CardContent>
-        </Card>
+                <div className="grid gap-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input id="password" type="password" placeholder="********" required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+                </div>
+                <Button className="w-full" onClick={() => startSignup()}>
+                    Sign Up
+                </Button>
+            </div>
+
+            <div className="mt-4 text-center text-sm">
+                Already have an account?{" "}
+                <Link href="/login" className="underline">
+                    Sign in
+                </Link>
+            </div>
+
+            {showError && <Card className="bg-red-100 text-red-700">
+                <CardHeader>
+                    <CardTitle>Error</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <CardDescription>{errorMessage}</CardDescription>
+                </CardContent>
+            </Card>}
+
+            {showSuccess && <Card className="bg-green-100 text-green-700">
+                <CardHeader>
+                    <CardTitle>Success</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <CardDescription>{successMessage}</CardDescription>
+                </CardContent>
+            </Card>}
+
+        </div>
     )
 }

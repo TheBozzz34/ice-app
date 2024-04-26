@@ -8,33 +8,37 @@ import { createClient } from "@/utils/supabase/server";
 type FormData = {
   email: string;
   password: string;
-  first_name: string;
-  last_name: string;
 };
 
 
 
 export async function signup(formData: FormData) {
-  /* No second password field in the form right now
-  if (formData.get("password") !== formData.get("repeat-password")) {
-    alert("Passwords do not match!");
-    return;
-  }
-  */
+  console.log("Signing up user");
 
   const supabase = createClient();
+
+
+  // Check if user is invited
+  const { data: inviteData, error: inviteError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', formData.email);
+
+  if (inviteError) {
+    console.error(inviteError);
+    console.log("Error checking for invite");
+    //redirect("/error");
+  } else {
+    console.log("Invite check successful");
+    return; // testing
+  }
+    
 
   // type-casting here for convenience
   // custom user metadata can be added here
   const data = {
     email: formData.email,
-    password: formData.password,
-    options: {
-      data: {
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-      },
-    },
+    password: formData.password
   };
 
   const { error: userError, data: userData } = await supabase.auth.signUp(data);

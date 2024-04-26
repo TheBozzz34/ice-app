@@ -89,6 +89,8 @@ type User = {
   user: string
   role: number
   created_at: string
+  name: string
+  email: string
 }
 
 const roles = new Map([
@@ -110,7 +112,11 @@ export default function Employees() {
   const supabase = createClient()
 
   const [isFetchingRounds, setIsFetchingRounds] = useState(false);
-  const [hasClicked, setHasClicked] = useState(false)
+  const [newEmployeeName, setNewEmployeeName] = useState('')
+  const [newEmployeeEmail, setNewEmployeeEmail] = useState('')
+  const [newEmployeeRole, setNewEmployeeRole] = useState(0)
+
+  const [isEditing, setIsEditing] = useState(false)
 
   function handleRedirection() {
     //redirect('/login');
@@ -143,7 +149,7 @@ export default function Employees() {
           throw new Error('Failed to fetch users');
         }
         const data = await response.json();
-        console.log('Fetched users:', data); // Log fetched data
+
         setUsers(data);
       }
     } catch (error) {
@@ -152,7 +158,7 @@ export default function Employees() {
       setIsFetchingRounds(false);
     }
   }
-  
+
 
 
 
@@ -196,13 +202,32 @@ export default function Employees() {
   useEffect(() => {
     // Fetch users when component mounts
     fetchUsers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures this effect runs only once
 
 
   function handleRoundEdit(roundId: number) {
     setCurrentRound(roundId);
     console.log('Editing round:', currentRound);
+  }
+
+  async function handleEmployeeAdd() {
+    console.log('Adding employee');
+
+    const { data, error } = await supabase
+      .from('users')
+      .insert([
+        { role: newEmployeeRole, name: newEmployeeName, email: newEmployeeEmail, id: Math.floor(Math.random() * 256) }
+      ])
+      .select()
+
+    if (error) {
+      console.error('Failed to add employee:', error);
+    } else {
+      console.log('Added employee:', data);
+      fetchUsers();
+    }
+
   }
 
   return (
@@ -366,7 +391,7 @@ export default function Employees() {
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
-                  <Button>Create New Employee</Button>
+                  <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}> Add Employee</Button>
                 </CardFooter>
               </Card>
               <Card x-chunk="dashboard-05-chunk-1">
@@ -454,7 +479,7 @@ export default function Employees() {
                         <TableRow>
                           <TableHead>Created</TableHead>
                           <TableHead className="hidden sm:table-cell">
-                            UUID
+                            Email
                           </TableHead>
 
                           <TableHead className="hidden md:table-cell">
@@ -475,8 +500,10 @@ export default function Employees() {
                         {users.map((user) => (
                           <TableRow key={user.id}>
                             <TableCell className="font-medium">{prettyDate(user.created_at)}</TableCell>
-                            <TableCell>{user.user}</TableCell>
-                            <TableCell>Name here</TableCell>
+                            <TableCell className="hidden sm:table-cell">
+                                {user.email}
+                              </TableCell>
+                            <TableCell>{user.name}</TableCell>
                             <TableCell>{roles.get(user.role)} | {user.role}</TableCell>
                             <TableCell>{user.id}</TableCell>
                             <TableCell>
@@ -511,6 +538,54 @@ export default function Employees() {
             </Tabs>
           </div>
           {currentRound && <RoundView roundId={currentRound} />}
+
+          {isEditing &&
+
+            <div className="">
+              <div className="flex items-center gap-4 p-4 bg-background rounded-lg border border-muted-foreground">
+                <div className="flex-1">
+
+                  <div className="flex flex-col gap-4">
+                    <h2 className="text-2xl font-semibold">New Employee</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Enter the details of the employee.
+                    </p>
+                    <Separator />
+                  </div>
+
+                  <Input
+                    type="text"
+                    placeholder="Enter employee name"
+                    className="mt-4"
+                    value={newEmployeeName}
+                    onChange={(e) => setNewEmployeeName(e.target.value)}
+
+                  />
+                  <Input
+                    type="text"
+                    placeholder="Enter employee email"
+                    className="mt-4"
+                    value={newEmployeeEmail}
+                    onChange={(e) => setNewEmployeeEmail(e.target.value)}
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Enter employee role"
+                    className="mt-4"
+                    value={newEmployeeRole}
+                    onChange={(e) => setNewEmployeeRole(parseInt(e.target.value))}
+                  />
+
+                  <Button className="mt-4" onClick={handleEmployeeAdd}>Add Employee</Button>
+                  <Button className="mt-4 ml-4" variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+
+                </div>
+              </div>
+            </div>
+          }
+
+
+
         </div>
       </div>
 
@@ -519,6 +594,8 @@ export default function Employees() {
           <CircularProgress color="primary" /> {/* Use CircularProgress component */}
         </div>
       )}
+
+
 
     </div>
   )

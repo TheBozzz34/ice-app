@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import {
   ChevronLeft,
   ChevronRight,
+  CircleX,
   Copy,
   CreditCard,
   File,
@@ -60,6 +61,7 @@ export function RoundView(roundId: any) { // need to type
   const supabase = createClient()
   const [round, setRound] = useState<Round>();
   const [site, setSite] = useState([]);
+  const [showing, setShowing] = useState(true);
 
   useEffect(() => {
     async function fetchRound() {
@@ -103,6 +105,7 @@ export function RoundView(roundId: any) { // need to type
   }
 
 
+
   return (
     <div>
             <Card
@@ -129,10 +132,15 @@ export function RoundView(roundId: any) { // need to type
                   )}
                 </div>
                 <div className="ml-auto flex items-center gap-1">
-                  <Button size="sm" variant="outline" className="h-8 gap-1">
-                    <Truck className="h-3.5 w-3.5" />
+                  <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="h-8 gap-1"
+                  onClick={() => setShowing(!showing)}
+                  >
+                    <CircleX className="h-3 w-3" />
                     <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
-                      BUTTON
+                      Close
                     </span>
                   </Button>
                   <DropdownMenu>
