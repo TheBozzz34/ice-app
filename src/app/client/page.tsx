@@ -102,7 +102,7 @@ export default function Dashboard() {
     const { data: userRoles, error: userRolesError } = await supabase
       .from('users')
       .select('*')
-      .eq('user', userId);
+      .eq('email', authData?.user?.email);
   
     if (userRolesError) {
       return handleError(userRolesError);
@@ -238,6 +238,7 @@ export default function Dashboard() {
           {activePage === 5 && <Page5 />}
         </div>
       </div>
+
     </div>
   )
 }

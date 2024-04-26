@@ -583,9 +583,6 @@ export default function Employees() {
               </div>
             </div>
           }
-
-
-
         </div>
       </div>
 
@@ -594,8 +591,6 @@ export default function Employees() {
           <CircularProgress color="primary" /> {/* Use CircularProgress component */}
         </div>
       )}
-
-
 
     </div>
   )

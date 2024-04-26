@@ -14,6 +14,8 @@ import {
 import { createClient } from "@/utils/supabase/client";
 import { useState , useEffect} from "react"
 import { Pencil } from "lucide-react";
+import { CircularProgress } from "@mui/material"; 
+
 
 
 const sites = new Map([
@@ -44,6 +46,8 @@ type Round = {
 export default function Page2() {
   const supabase = createClient()
 
+  const [isLoading, setIsLoading] = useState(true)
+
   const [rounds, setRounds] = useState<Round[]>([]);
   const [dDate, setdDate] = useState(new Date());
 
@@ -69,6 +73,7 @@ export default function Page2() {
       } else {
         setRounds(data)
         console.log(data)
+        setIsLoading(false)
       }
 
     }
@@ -123,6 +128,13 @@ export default function Page2() {
           </Table>
 
         </div>
+
+        {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-90">
+        <CircularProgress color="primary" /> {/* Use CircularProgress component */}
+      </div>
+      )}
+
       </div>
     </>
   )
