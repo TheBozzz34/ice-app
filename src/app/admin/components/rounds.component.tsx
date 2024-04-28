@@ -167,17 +167,17 @@ export function RoundView(roundId: any) { // need to type
                   <ul className="grid gap-3">
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Deposited Bills</span>
-                      <span>$299.00</span>
+                      <span>${round?.water_bills_calc_total}</span>
                     </li>
                     <li className="flex items-center justify-between">
                       <span className="text-muted-foreground">Deposited Coins</span>
-                      <span>$5.00</span>
+                      <span>${round?.water_coin_calc_total}</span>
                     </li>
 
                     <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="outline" className="h-8 w-8">
-                        eoaebj
+                      <Button size="icon" variant="outline" className="w-full">
+                        Details
                         <span className="sr-only">Details</span>
                       </Button>
                     </DropdownMenuTrigger>
@@ -196,9 +196,8 @@ export function RoundView(roundId: any) { // need to type
                   <div className="grid gap-3">
                     <div className="font-semibold">Site Information</div>
                     <address className="grid gap-0.5 not-italic text-muted-foreground">
-                      <span>SITE_NAME</span>
-                      <span>SITE_ADDRESS_LINE_1</span>
-                      <span>SITE_ADDRESS_LINE_2</span>
+                      <span>{site?.name}</span>
+                      <span>{site?.address}</span>
                     </address>
                   </div>
                 </div>
