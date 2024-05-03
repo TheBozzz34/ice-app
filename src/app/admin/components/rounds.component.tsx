@@ -50,8 +50,16 @@ type Round = {
   created_at: string
   site: string
   wf_deposit_date: string
+  water_bills_calc_total: number
+  water_coin_calc_total: number
 }
 
+
+type Site = {
+  id: number
+  name: string
+  address: string
+}
 
 function prettyDateTime(date: string) {
   return new Date(date).toLocaleString("en-US");
@@ -60,7 +68,7 @@ function prettyDateTime(date: string) {
 export function RoundView(roundId: any) { // need to type
   const supabase = createClient()
   const [round, setRound] = useState<Round>();
-  const [site, setSite] = useState([]);
+  const [site, setSite] = useState<Site>();
   const [showing, setShowing] = useState(true);
 
   useEffect(() => {
@@ -84,6 +92,7 @@ export function RoundView(roundId: any) { // need to type
     }
 
     fetchRound();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundId]);
 
   async function setDepositDate(date: string) {
