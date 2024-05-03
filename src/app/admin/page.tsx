@@ -231,7 +231,7 @@ export default function Dashboard() {
     }
 
     setIsExporting(true);
-    fetch('http://10.0.0.177:3000/export', {
+    fetch('https://api.scripkitty.store/export', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

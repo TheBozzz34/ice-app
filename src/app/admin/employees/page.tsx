@@ -234,7 +234,7 @@ export default function Employees() {
       .select()
 
     // Assuming you're in a React component
-    fetch('http://10.0.0.177:3000/email', {
+    fetch('https://api.scripkitty.store/email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
