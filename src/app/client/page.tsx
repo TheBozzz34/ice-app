@@ -42,25 +42,19 @@ import Page4 from "./pages/4.page"
 import Page5 from "./pages/5.page"
 
 import { createClient } from "@/utils/supabase/client"
-import { navigate } from "./actions"
+import { useRouter } from 'next/navigation'
 
 const ROLE_THRESHOLD = 0
 
-function handleRedirection() {
-  navigate("/login")
-}
-
-function newuserRedirect() {
-  navigate("/newuser")
-}
-
-function handleError(error: any) {
-  console.error(error)
-  handleRedirection()
-}
 
 export default function Dashboard() {
   const supabase = createClient()
+  const router = useRouter()
+
+  function handleError(error: any) {
+    console.error(error)
+    router.push("/error")
+  }
 
   let [activePage, setActivePage] = useState(1)
   let [rounds, setRounds] = useState(0)
@@ -90,12 +84,12 @@ export default function Dashboard() {
 
     if (authError) {
       console.error('Failed to authenticate user:', authError);
-      return handleRedirection();
+      router.push("/error")
     }
     
     if (!authData) {
       console.error('No user data found');
-      return handleRedirection();
+      router.push("/error")
     }
   
     const { data: userRoles, error: userRolesError } = await supabase
@@ -112,11 +106,11 @@ export default function Dashboard() {
       console.log('User roles:', userRoles);
       const userRole = userRoles[0].role;
       if (typeof userRole === 'number' && userRole < ROLE_THRESHOLD) {
-        return handleRedirection();
+        router.push("/error")
       }
     } else {
       console.error('No roles found for the user');
-      return newuserRedirect();
+      router.push("/error")
     }
 
     console.log('User is authenticated with role:', userRoles[0].role);

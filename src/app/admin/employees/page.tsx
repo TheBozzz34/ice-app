@@ -120,6 +120,8 @@ export default function Employees() {
 
   const [isEditing, setIsEditing] = useState(false)
 
+  const [userId, setUserId] = useState<string | null>(null)
+
   function handleRedirection() {
     //redirect('/login');
     console.log('redirecting to login')
@@ -177,7 +179,10 @@ export default function Employees() {
     if (!userId) {
       console.error('No user ID found');
       return handleRedirection();
+    } else {
+        setUserId(userId);
     }
+
 
     const { data: userRoles, error: userRolesError } = await supabase
       .from('users')
@@ -228,13 +233,37 @@ export default function Employees() {
       ])
       .select()
 
+    // Assuming you're in a React component
+    fetch('http://10.0.0.177:3000/email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: newEmployeeEmail,
+        name: newEmployeeName,
+        userId: userId
+      }),
+    })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log(data); // Handle the response data as needed
+        })
+        .catch(error => {
+          console.error('There was a problem with the request:', error);
+        });
+
     if (error) {
       console.error('Failed to add employee:', error);
     } else {
       console.log('Added employee:', data);
-      fetchUsers();
+      await fetchUsers();
     }
-
   }
 
   return (
@@ -475,9 +504,9 @@ export default function Employees() {
               <TabsContent value="week">
                 <Card x-chunk="dashboard-05-chunk-3">
                   <CardHeader className="px-7">
-                    <CardTitle>Rounds</CardTitle>
+                    <CardTitle>Employees</CardTitle>
                     <CardDescription>
-                      Recently completed rounds by your employees.
+                      Your employees.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>

@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,7 +67,7 @@ export default function Page1() {
 
       const created_by = await getUserId();
 
-      /*
+      /* shits goofed here
     let water_coin_calc_total = water_coin_calc_current - prev_water_coin
 
     let water_bills_calc_total = water_bills_sales - water_coin_calc_total
@@ -88,7 +90,6 @@ export default function Page1() {
           wf_deposit_coins_total: wf_coins_total,
           wf_deposit_bills_total: wf_bills_total,
           round_site: site,
-          wf_deposit_date: new Date(),
         },
       ]);
 

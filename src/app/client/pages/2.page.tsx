@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,13 +10,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import { createClient } from "@/utils/supabase/client";
-import { useState , useEffect} from "react"
-import { Pencil } from "lucide-react";
-import { CircularProgress } from "@mui/material"; 
-
-
+import { useState, useEffect } from "react";
+import { Landmark } from "lucide-react";
+import { CircularProgress } from "@mui/material";
 
 const sites = new Map([
   [0, "Site 1"],
@@ -29,64 +27,106 @@ const sites = new Map([
   [7, "Site 8"],
   [8, "Site 9"],
   [9, "Site 10"],
-])
+]);
 
 function prettyDate(date: string) {
-  return new Date(date).toLocaleDateString('en-US')
+  return new Date(date).toLocaleDateString("en-US");
 }
 
 type Round = {
-  id: number
-  created_at: string
-  round_site: number
-  ice_sales_info_stacker: string
-  ice_sales_info_coin_box: number
-}
+  id: number;
+  created_at: string;
+  round_site: number;
+  ice_sales_info_stacker: string;
+  ice_sales_info_coin_box: number;
+    wf_deposit_date: number;
+};
 
 export default function Page2() {
-  const supabase = createClient()
+  const supabase = createClient();
 
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
 
   const [rounds, setRounds] = useState<Round[]>([]);
   const [dDate, setdDate] = useState(new Date());
 
-  async function setDepositDate(date: string) {
-    console.log(date)
+  async function setDepositDate(id: number) {
+    //console.log(date);
+    const user = await getUser();
+    const date = Date.now()
+
+    if (user) {
+      console.log(user.id)
+
+      /*
+      const { error, data } = await supabase
+          .from('rounds')
+          .update({ wf_deposit_date: date })
+          .eq('id', id)
+          .select()
+
+       */
+
+
+
+
+      const { error } = await supabase
+          .from('rounds')
+            .update({ wf_deposit_date: date })
+          .eq('id', id)
+            .select()
+
+
+
+      if (error) {
+        console.log(error.message);
+      } else {
+        console.log("changed deposit date for id " + id)
+      }
+    }
   }
 
+  async function getUser() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user;
+  }
+
+
   async function fetchRounds() {
-    const { data: user, error: userError } = await supabase.auth.getUser()
+    const { data: user, error: userError } = await supabase.auth.getUser();
     if (userError || !user?.user) {
       // redirect('/login')
     } else {
+      console.log(user.user.id);
 
-      console.log(user.user.id)
-
-      const { data, error } = await supabase.from("rounds")
+      const { data, error } = await supabase
+        .from("rounds")
         .select("*")
         .order("created_at", { ascending: false })
-        .eq("created_by", user?.user?.id)
+        .eq("created_by", user?.user?.id);
 
       if (error) {
-        console.error(error)
+        console.error(error);
       } else {
-        setRounds(data)
-        console.log(data)
-        setIsLoading(false)
+        setRounds(data);
+        console.log(data);
+        setIsLoading(false);
       }
-
     }
   }
 
   useEffect(() => {
-    fetchRounds()
-  }, [])
+    fetchRounds();
+  }, []);
 
   return (
     <>
       <div className="flex items-center">
-        <h1 className="text-lg font-semibold md:text-2xl">Your Recent Rounds</h1>
+        <h1 className="text-lg font-semibold md:text-2xl">
+          Your Recent Rounds
+        </h1>
       </div>
       <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm">
         <div className="flex flex-col items-center gap-1 text-center">
@@ -98,22 +138,28 @@ export default function Page2() {
                 <TableHead>site</TableHead>
                 <TableHead>stacker</TableHead>
                 <TableHead>coin box</TableHead>
-                <TableHead>edit round</TableHead>
+                <TableHead>deposit round</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rounds.map((round) => (
                 <TableRow key={round.id}>
-                  <TableCell className="font-medium">{prettyDate(round.created_at)}</TableCell>
+                  <TableCell className="font-medium">
+                    {prettyDate(round.created_at)}
+                  </TableCell>
                   <TableCell>{sites.get(round.round_site)}</TableCell>
                   <TableCell>{round.ice_sales_info_stacker}</TableCell>
                   <TableCell>{round.ice_sales_info_coin_box}</TableCell>
                   <TableCell>
                     <Button
-                      onClick={() => setDepositDate(round.created_at)}
+                      onClick={() => setDepositDate(round.id)}
                       className="text-primary"
                     >
-                      <Pencil className="text-secondary" />
+                      {round.wf_deposit_date ?
+                          <Landmark className="text-secondary" />
+                       :
+                        <Landmark color={"red"} className={"text-secondary"} />
+                      }
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -126,16 +172,15 @@ export default function Page2() {
               </TableRow>
             </TableFooter>
           </Table>
-
         </div>
 
         {isLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-90">
-        <CircularProgress color="primary" /> {/* Use CircularProgress component */}
-      </div>
-      )}
-
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-90">
+            <CircularProgress color="primary" />{" "}
+            {/* Use CircularProgress component */}
+          </div>
+        )}
       </div>
     </>
-  )
+  );
 }

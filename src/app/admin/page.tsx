@@ -20,7 +20,7 @@ import {
   ShoppingCart,
   Truck,
   Users2,
-  User
+  User, Circle
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -93,29 +93,24 @@ type Round = {
   ice_sales_info_coin_box: number
 }
 
-
-
 function prettyDate(date: string) {
   return new Date(date).toLocaleDateString('en-US')
 }
 
 const sites = new Map([
-  [0, "Site 1"],
-  [1, "Site 2"],
-  [2, "Site 3"],
-  [3, "Site 4"],
-  [4, "Site 5"],
-  [5, "Site 6"],
-  [6, "Site 7"],
-  [7, "Site 8"],
-  [8, "Site 9"],
-  [9, "Site 10"],
+  [0, "Pojoaque"],
+  [1, "Alameda"],
+  [2, "Moriarty"],
+  [3, "Coors"],
+  [4, "Sequoia"],
+  [5, "Atrisco"],
+  [6, "Isleta"],
+  [7, "Edgewood"]
 ])
 
+const sitesArray = Array.from(sites.entries());
+
 const ROLE_THRESHOLD = 25565;
-
-
-
 
 export default function Dashboard() {
   const supabase = createClient()
@@ -138,6 +133,14 @@ export default function Dashboard() {
 
   const [rounds, setRounds] = useState<Round[]>([])
 
+  const [userId, setUserId] = useState<string | null>(null)
+
+  const [isExporting, setIsExporting] = useState(false);
+
+  const [depositFilter, setDepositFilter] = useState('all');
+
+  const [selectedSite, setSelectedSite] = useState('Pojoaque');
+
   async function fetchRounds() {
     try {
       setIsFetchingRounds(true);
@@ -149,6 +152,7 @@ export default function Dashboard() {
         const response = await fetch('/api/rounds', {
           headers: {
             Authorization: `Bearer ${jwt}`,
+            Site: sitesArray.find(([id, site]) => site === selectedSite)?.[0].toString(),
           },
         });
         if (!response.ok) {
@@ -180,6 +184,8 @@ export default function Dashboard() {
       console.error('No user ID found');
       return handleRedirection();
     }
+
+    setUserId(userId);
 
     const { data: userRoles, error: userRolesError } = await supabase
       .from('users')
@@ -218,6 +224,53 @@ export default function Dashboard() {
     setCurrentRound(roundId);
     console.log('Editing round:', currentRound);
   }
+
+  async function exportRounds() {
+    if (isExporting) {
+      return;
+    }
+
+    setIsExporting(true);
+    fetch('http://10.0.0.177:3000/export', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: userId,
+      }),
+    })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          return response.blob(); // need error checking here
+        })
+        .then(blob => {
+          // Create a temporary URL for the blob and trigger download
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = 'rounds.csv';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+          console.error('There was a problem with the request:', error);
+        }).finally(() => {
+          setIsExporting(false);
+        });
+    }
+
+  useEffect(() => {
+    console.log("Selected Site: ", selectedSite)
+    fetchRounds()
+  }, [selectedSite])
+
+
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -336,12 +389,6 @@ export default function Dashboard() {
                 </BreadcrumbList>
               </Breadcrumb>
               <div className="relative ml-auto flex-1 md:grow-0">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search..."
-                  className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-                />
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -389,10 +436,8 @@ export default function Dashboard() {
                         Management and Insightful Analysis.
                       </CardDescription>
                     </CardHeader>
-                    <CardFooter>
-                      <Button>Create New Round</Button>
-                    </CardFooter>
                   </Card>
+                  {/*
                   <Card x-chunk="dashboard-05-chunk-1">
                     <CardHeader className="pb-2">
                       <CardDescription>This Week</CardDescription>
@@ -421,13 +466,16 @@ export default function Dashboard() {
                       <Progress value={12} aria-label="12% increase" />
                     </CardFooter>
                   </Card>
+                  */}
                 </div>
                 <Tabs defaultValue="week">
                   <div className="flex items-center">
                     <TabsList>
-                      <TabsTrigger value="week">Week</TabsTrigger>
-                      <TabsTrigger value="month">Month</TabsTrigger>
-                      <TabsTrigger value="year">Year</TabsTrigger>
+                      {sitesArray.map(([id, site]) => (
+                          <TabsTrigger key={id} value={site} onClick={() => setSelectedSite(site)}>
+                            {site}
+                          </TabsTrigger>
+                      ))}
                     </TabsList>
                     <div className="ml-auto flex items-center gap-2">
                       <DropdownMenu>
@@ -444,14 +492,14 @@ export default function Dashboard() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Filter by</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuCheckboxItem checked>
-                            Fulfilled
+                          <DropdownMenuCheckboxItem checked={depositFilter === 'deposited'} onClick={() => setDepositFilter('deposited')}>
+                            Deposited
                           </DropdownMenuCheckboxItem>
-                          <DropdownMenuCheckboxItem>
-                            Declined
+                          <DropdownMenuCheckboxItem checked={depositFilter === 'pending'} onClick={() => setDepositFilter('pending')}>
+                            Pending Deposit
                           </DropdownMenuCheckboxItem>
-                          <DropdownMenuCheckboxItem>
-                            Refunded
+                          <DropdownMenuCheckboxItem checked={depositFilter === 'all'} onClick={() => setDepositFilter('all')}>
+                            All Rounds
                           </DropdownMenuCheckboxItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -461,11 +509,16 @@ export default function Dashboard() {
                         className="h-7 gap-1 text-sm"
                       >
                         <File className="h-3.5 w-3.5" />
-                        <span className="sr-only sm:not-sr-only">Export</span>
+
+                        {isExporting ? (
+                            <span className="sr-only sm:not-sr-only">Export in progress...</span>
+                        ) : (
+                            <span className="sr-only sm:not-sr-only" onClick={exportRounds}>Export</span>
+                        )}
                       </Button>
                     </div>
                   </div>
-                  <TabsContent value="week">
+                  <TabsContent value="Pojoaque">
                     <Card x-chunk="dashboard-05-chunk-3">
                       <CardHeader className="px-7">
                         <CardTitle>Rounds</CardTitle>

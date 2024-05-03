@@ -6,10 +6,17 @@ export async function GET(request: Request) {
     const supabase = createClient();
 
     const jwt = request.headers.get('Authorization')?.replace('Bearer ', '') // need to use jwt
+    const site = request.headers.get('Site');
 
     if (!jwt) {
         return new Response('Unauthorized', {
             status: 401,
+          })
+    }
+
+    if (!site) {
+        return new Response('Bad Request', {
+            status: 400,
           })
     }
 
@@ -25,7 +32,8 @@ export async function GET(request: Request) {
     const { data, error } = await supabase
     .from("rounds")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .eq("round_site", site);
 
     if (error) {
         console.error(error)
