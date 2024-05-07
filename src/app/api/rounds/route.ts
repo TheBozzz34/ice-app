@@ -14,12 +14,6 @@ export async function GET(request: Request) {
           })
     }
 
-    if (!site) {
-        return new Response('Bad Request', {
-            status: 400,
-          })
-    }
-
     
     const { data: { user } } = await supabase.auth.getUser(jwt) 
 
@@ -33,7 +27,6 @@ export async function GET(request: Request) {
     .from("rounds")
     .select("*")
     .order("created_at", { ascending: false })
-    .eq("round_site", site);
 
     if (error) {
         console.error(error)

@@ -108,12 +108,21 @@ const sites = new Map([
   [7, "Edgewood"]
 ])
 
+const sitesReverse = new Map(Array.from(sites.entries()).map(([k, v]) => [v, k]));
+
 const sitesArray = Array.from(sites.entries());
 
 const ROLE_THRESHOLD = 25565;
 
 export default function Dashboard() {
   const supabase = createClient()
+
+  useEffect(() => {
+    if (!hasAuthenticated) {
+      auth();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const [isFetchingRounds, setIsFetchingRounds] = useState(false); // New state variable for fetching status
   const [hasClicked, setHasClicked] = useState(false)
@@ -139,7 +148,7 @@ export default function Dashboard() {
 
   const [depositFilter, setDepositFilter] = useState('all');
 
-  const [selectedSite, setSelectedSite] = useState('Pojoaque');
+  const [selectedSite, setSelectedSite] = useState(1);
 
   async function fetchRounds() {
     try {
@@ -150,9 +159,9 @@ export default function Dashboard() {
       } else {
         console.log('Fetching rounds with JWT:', jwt);
         const response = await fetch('/api/rounds', {
+          method: 'GET',
           headers: {
-            Authorization: `Bearer ${jwt}`,
-            Site: sitesArray.find(([id, site]) => site === selectedSite)?.[0].toString(),
+            'Authorization': `Bearer ${jwt}`,
           },
         });
         if (!response.ok) {
@@ -209,15 +218,8 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    if (!hasAuthenticated) {
-      auth();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
     fetchRounds()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function handleRoundEdit(roundId: number) {
@@ -231,7 +233,7 @@ export default function Dashboard() {
     }
 
     setIsExporting(true);
-    fetch('https://api.scripkitty.store/export', {
+    const response = await fetch('https://api.scripkitty.store/export', { // this is so shit
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -239,36 +241,37 @@ export default function Dashboard() {
       body: JSON.stringify({
         userId: userId,
       }),
-    })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
+    }).then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
 
-          return response.blob(); // need error checking here
-        })
-        .then(blob => {
-          // Create a temporary URL for the blob and trigger download
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = 'rounds.csv';
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-        })
-        .catch(error => {
-          console.error('There was a problem with the request:', error);
-        }).finally(() => {
-          setIsExporting(false);
-        });
-    }
+      return response.blob(); // need error checking here
+    })
+      .then(blob => {
+        // Create a temporary URL for the blob and trigger download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'rounds.csv';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('There was a problem with the request:', error);
+      }).finally(() => {
+        setIsExporting(false);
+      });
+  }
+
+  let filteredRounds = rounds.filter((round) => round.round_site === selectedSite);
 
   useEffect(() => {
-    console.log("Selected Site: ", selectedSite)
-    fetchRounds()
-  }, [selectedSite])
+    console.log('Filtered rounds:', filteredRounds);
+  }, [filteredRounds])
+
 
 
 
@@ -437,44 +440,15 @@ export default function Dashboard() {
                       </CardDescription>
                     </CardHeader>
                   </Card>
-                  {/*
-                  <Card x-chunk="dashboard-05-chunk-1">
-                    <CardHeader className="pb-2">
-                      <CardDescription>This Week</CardDescription>
-                      <CardTitle className="text-4xl">$NUMBER</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-xs text-muted-foreground">
-                        NUMBER% from last week
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Progress value={25} aria-label="25% increase" />
-                    </CardFooter>
-                  </Card>
-                  <Card x-chunk="dashboard-05-chunk-2">
-                    <CardHeader className="pb-2">
-                      <CardDescription>This Month</CardDescription>
-                      <CardTitle className="text-4xl">$NUMBER</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-xs text-muted-foreground">
-                        NUMBER% from last month
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Progress value={12} aria-label="12% increase" />
-                    </CardFooter>
-                  </Card>
-                  */}
                 </div>
-                <Tabs defaultValue="week">
+                {/*
+                <Tabs defaultValue="Alameda">
                   <div className="flex items-center">
                     <TabsList>
                       {sitesArray.map(([id, site]) => (
-                          <TabsTrigger key={id} value={site} onClick={() => setSelectedSite(site)}>
-                            {site}
-                          </TabsTrigger>
+                        <TabsTrigger key={id} value={site} onClick={() => setSelectedSite(site)}>
+                          {site}
+                        </TabsTrigger>
                       ))}
                     </TabsList>
                     <div className="ml-auto flex items-center gap-2">
@@ -511,14 +485,124 @@ export default function Dashboard() {
                         <File className="h-3.5 w-3.5" />
 
                         {isExporting ? (
-                            <span className="sr-only sm:not-sr-only">Export in progress...</span>
+                          <span className="sr-only sm:not-sr-only">Export in progress...</span>
                         ) : (
-                            <span className="sr-only sm:not-sr-only" onClick={exportRounds}>Export</span>
+                          <span className="sr-only sm:not-sr-only" onClick={exportRounds}>Export</span>
                         )}
                       </Button>
                     </div>
                   </div>
-                  <TabsContent value="Pojoaque">
+                 
+
+                 {sitesArray.map(([id, site]) => (
+                     <TabsContent value={site} key={id}>
+                     <Card x-chunk="dashboard-05-chunk-3">
+                       <CardHeader className="px-7">
+                         <CardTitle>Rounds</CardTitle>
+                         <CardDescription>
+                           Recently completed rounds
+                         </CardDescription>
+                       </CardHeader>
+                       <CardContent>
+                         <Table>
+                           <TableHeader>
+                             <TableRow>
+                               <TableHead>Date</TableHead>
+                               <TableHead className="hidden sm:table-cell">
+                                 Site
+                               </TableHead>
+                               <TableHead className="hidden sm:table-cell">
+                                 Status
+                               </TableHead>
+                               <TableHead className="hidden md:table-cell">
+                                 Employee
+                               </TableHead>
+                               <TableHead className="text-right">Amount</TableHead>
+                             </TableRow>
+                           </TableHeader>
+                           <TableBody>
+                             {rounds.map((round) => (
+                               <TableRow key={round.id}>
+                                 <TableCell className="font-medium">{prettyDate(round.created_at)}</TableCell>
+                                 <TableCell>{sites.get(round.round_site)}</TableCell>
+                                 <TableCell>{round.ice_sales_info_stacker}</TableCell>
+                                 <TableCell>{round.created_by}</TableCell>
+                                 <TableCell className="text-right">{round.ice_sales_info_coin_box}</TableCell>
+                                 <TableCell className="text-right">
+                                   <Button
+                                     variant="outline"
+                                     size="icon"
+                                     className="h-8 w-8 mt-2 mr-2"
+                                     onClick={() => handleRoundEdit(round.id)}
+                                   >
+                                     <Pencil className="h-4 w-4" />
+                                     <span className="sr-only">Edit</span>
+                                   </Button>
+                                 </TableCell>
+                               </TableRow>
+                             ))}
+                           </TableBody>
+                         </Table>
+                       </CardContent>
+                     </Card>
+                   </TabsContent>
+                  ))}
+
+                </Tabs>
+                */}
+
+                <Tabs>
+                  <div className="flex items-center">
+                    <TabsList>
+                      {sitesArray.map(([id, site]) => (
+                        <TabsTrigger key={id} value={site} onClick={() => setSelectedSite(id)}>
+                          {site}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                    <div className="ml-auto flex items-center gap-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 gap-1 text-sm"
+                          >
+                            <ListFilter className="h-3.5 w-3.5" />
+                            <span className="sr-only sm:not-sr-only">Filter</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuCheckboxItem checked={depositFilter === 'deposited'} onClick={() => setDepositFilter('deposited')}>
+                            Deposited
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuCheckboxItem checked={depositFilter === 'pending'} onClick={() => setDepositFilter('pending')}>
+                            Pending Deposit
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuCheckboxItem checked={depositFilter === 'all'} onClick={() => setDepositFilter('all')}>
+                            All Rounds
+                          </DropdownMenuCheckboxItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 gap-1 text-sm"
+                      >
+                        <File className="h-3.5 w-3.5" />
+
+                        {isExporting ? (
+                          <span className="sr-only sm:not-sr-only">Export in progress...</span>
+                        ) : (
+                          <span className="sr-only sm:not-sr-only" onClick={exportRounds}>Export</span>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <TabsContent value="Alameda">
                     <Card x-chunk="dashboard-05-chunk-3">
                       <CardHeader className="px-7">
                         <CardTitle>Rounds</CardTitle>
@@ -544,7 +628,7 @@ export default function Dashboard() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {rounds.map((round) => (
+                            {filteredRounds.map((round) => (
                               <TableRow key={round.id}>
                                 <TableCell className="font-medium">{prettyDate(round.created_at)}</TableCell>
                                 <TableCell>{sites.get(round.round_site)}</TableCell>
@@ -569,7 +653,62 @@ export default function Dashboard() {
                       </CardContent>
                     </Card>
                   </TabsContent>
+
+                  <TabsContent value="5">
+                    <Card x-chunk="dashboard-05-chunk-3">
+                      <CardHeader className="px-7">
+                        <CardTitle>Rounds</CardTitle>
+                        <CardDescription>
+                          Recently completed rounds
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Date</TableHead>
+                              <TableHead className="hidden sm:table-cell">
+                                Site
+                              </TableHead>
+                              <TableHead className="hidden sm:table-cell">
+                                Status
+                              </TableHead>
+                              <TableHead className="hidden md:table-cell">
+                                Employee
+                              </TableHead>
+                              <TableHead className="text-right">Amount</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {filteredRounds.map((round) => (
+                              <TableRow key={round.id}>
+                                <TableCell className="font-medium">{prettyDate(round.created_at)}</TableCell>
+                                <TableCell>{sites.get(round.round_site)}</TableCell>
+                                <TableCell>{round.ice_sales_info_stacker}</TableCell>
+                                <TableCell>{round.created_by}</TableCell>
+                                <TableCell className="text-right">{round.ice_sales_info_coin_box}</TableCell>
+                                <TableCell className="text-right">
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8 mt-2 mr-2"
+                                    onClick={() => handleRoundEdit(round.id)}
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                    <span className="sr-only">Edit</span>
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  
                 </Tabs>
+
               </div>
               {currentRound && <RoundView roundId={currentRound} />}
             </div>
