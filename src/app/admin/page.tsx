@@ -114,12 +114,16 @@ const sitesArray = Array.from(sites.entries());
 
 const ROLE_THRESHOLD = 25565;
 
+function trigger() {
+  return Math.ceil(Math.random() * 1000);
+}
+
 export default function Dashboard() {
   const supabase = createClient()
 
   useEffect(() => {
     if (!hasAuthenticated) {
-      auth();
+      auth().then(r => console.log('Authenticated'));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -149,6 +153,8 @@ export default function Dashboard() {
   const [depositFilter, setDepositFilter] = useState('all');
 
   const [selectedSite, setSelectedSite] = useState(1);
+
+  const [triggerValue, setTriggerValue] = useState(0);
 
   async function fetchRounds() {
     try {
@@ -224,6 +230,8 @@ export default function Dashboard() {
 
   function handleRoundEdit(roundId: number) {
     setCurrentRound(roundId);
+    setTriggerValue(trigger());
+
     console.log('Editing round:', currentRound);
   }
 
@@ -271,6 +279,44 @@ export default function Dashboard() {
   useEffect(() => {
     console.log('Filtered rounds:', filteredRounds);
   }, [filteredRounds])
+
+  const [emailToName, setEmailToName] = useState(new Map<string, string>())
+
+  /*
+    useEffect(() => {
+      async function fetchUsers() {
+        try {
+          // setIsFetchingRounds(true);
+          const jwt = (await supabase.auth.getSession()).data.session?.access_token
+          if (!jwt) {
+            throw new Error('No JWT found');
+          } else {
+            console.log('Fetching rounds with JWT:', jwt);
+            const response = await fetch('/api/employee', {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${jwt}`,
+              },
+            });
+            if (!response.ok) {
+              throw new Error('Failed to fetch rounds');
+            }
+            const data = await response.json();
+            console.log('Fetched rounds:', data); // Log fetched data
+            setRounds(data);
+          }
+        } catch (error) {
+          console.error('Error fetching rounds:', error);
+        } finally {
+          setIsFetchingRounds(false); // Set fetching status to false when fetching ends (success or error)
+        }
+      }
+
+
+
+    }, [])
+
+   */
 
 
 
@@ -551,14 +597,17 @@ export default function Dashboard() {
                 </Tabs>
                 */}
 
-                <Tabs>
+                <Tabs defaultValue="Alameda">
                   <div className="flex items-center">
                     <TabsList>
-                      {sitesArray.map(([id, site]) => (
+                      {/*sitesArray.map(([id, site]) => (
                         <TabsTrigger key={id} value={site} onClick={() => setSelectedSite(id)}>
                           {site}
                         </TabsTrigger>
-                      ))}
+                      ))*/}
+                        <TabsTrigger value="Alameda" onClick={() => setSelectedSite(1)}>
+                            Alameda
+                        </TabsTrigger>
                     </TabsList>
                     <div className="ml-auto flex items-center gap-2">
                       <DropdownMenu>
@@ -575,13 +624,13 @@ export default function Dashboard() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Filter by</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuCheckboxItem checked={depositFilter === 'deposited'} onClick={() => setDepositFilter('deposited')}>
+                          <DropdownMenuCheckboxItem disabled checked={depositFilter === 'deposited'} onClick={() => setDepositFilter('deposited')}>
                             Deposited
                           </DropdownMenuCheckboxItem>
-                          <DropdownMenuCheckboxItem checked={depositFilter === 'pending'} onClick={() => setDepositFilter('pending')}>
+                          <DropdownMenuCheckboxItem disabled checked={depositFilter === 'pending'} onClick={() => setDepositFilter('pending')}>
                             Pending Deposit
                           </DropdownMenuCheckboxItem>
-                          <DropdownMenuCheckboxItem checked={depositFilter === 'all'} onClick={() => setDepositFilter('all')}>
+                          <DropdownMenuCheckboxItem disabled checked={depositFilter === 'all'} onClick={() => setDepositFilter('all')}>
                             All Rounds
                           </DropdownMenuCheckboxItem>
                         </DropdownMenuContent>
@@ -619,21 +668,21 @@ export default function Dashboard() {
                                 Site
                               </TableHead>
                               <TableHead className="hidden sm:table-cell">
-                                Status
-                              </TableHead>
-                              <TableHead className="hidden md:table-cell">
                                 Employee
                               </TableHead>
-                              <TableHead className="text-right">Amount</TableHead>
+                              <TableHead className="hidden md:table-cell">
+                                Bills
+                              </TableHead>
+                              <TableHead className="hidden md:table-cell">Coins</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {filteredRounds.map((round) => (
+                            {rounds.map((round) => (
                               <TableRow key={round.id}>
                                 <TableCell className="font-medium">{prettyDate(round.created_at)}</TableCell>
                                 <TableCell>{sites.get(round.round_site)}</TableCell>
-                                <TableCell>{round.ice_sales_info_stacker}</TableCell>
                                 <TableCell>{round.created_by}</TableCell>
+                                <TableCell>{round.ice_sales_info_stacker}</TableCell>
                                 <TableCell className="text-right">{round.ice_sales_info_coin_box}</TableCell>
                                 <TableCell className="text-right">
                                   <Button
@@ -710,7 +759,7 @@ export default function Dashboard() {
                 </Tabs>
 
               </div>
-              {currentRound && <RoundView roundId={currentRound} />}
+              {currentRound && <RoundView roundId={currentRound} trigger={triggerValue} />}
             </div>
           </div>
         </>

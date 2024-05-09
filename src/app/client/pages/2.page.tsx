@@ -56,7 +56,7 @@ export default function Page2() {
     const date = Date.now()
 
     if (user) {
-      console.log(user.id)
+      console.log(id)
 
       /*
       const { error, data } = await supabase
@@ -70,18 +70,21 @@ export default function Page2() {
 
 
 
-      const { error } = await supabase
+
+      const { data, error } = await supabase
           .from('rounds')
-            .update({ wf_deposit_date: date })
+          .update({ wf_deposit_date: new Date() })
           .eq('id', id)
-            .select()
+          .select()
+
 
 
 
       if (error) {
         console.log(error.message);
       } else {
-        console.log("changed deposit date for id " + id)
+        console.log(data);
+        await fetchRounds();
       }
     }
   }
