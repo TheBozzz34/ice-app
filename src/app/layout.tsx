@@ -4,6 +4,8 @@ import "./globals.css";
 import NavBar from "@/components/NavBar/NavBar.component";
 import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -30,7 +32,7 @@ export default function RootLayout({
       >
         <TooltipProvider
           delayDuration={200}
-        >
+        ><Analytics/><SpeedInsights/>
         {children}
         </TooltipProvider>
         </body>
