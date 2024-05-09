@@ -266,6 +266,10 @@ export default function Employees() {
     }
   }
 
+  function handleUserdelete(userId: number) {
+    // TODO: Implement user deletion
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -433,11 +437,11 @@ export default function Employees() {
               <Card x-chunk="dashboard-05-chunk-1">
                 <CardHeader className="pb-2">
                   <CardDescription>Total Employees</CardDescription>
-                  <CardTitle className="text-4xl">$NUMBER</CardTitle>
+                  <CardTitle className="text-4xl">{users.length}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-xs text-muted-foreground">
-                    NUMBER% other datga
+                    &#123;&#123;PLACEHOLDER&#125;&#125;
                   </div>
                 </CardContent>
               </Card>
@@ -458,12 +462,12 @@ export default function Employees() {
               </Card>
               */}
             </div>
-            <Tabs defaultValue="week">
+            <Tabs defaultValue="e">
               <div className="flex items-center">
                 <TabsList>
-                  <TabsTrigger value="week">Site 1</TabsTrigger>
-                  <TabsTrigger value="month">Site 2</TabsTrigger>
-                  <TabsTrigger value="year">Site 3</TabsTrigger>
+                  <TabsTrigger value="e">1</TabsTrigger>
+                  <TabsTrigger disabled value="o">2</TabsTrigger>
+                  <TabsTrigger disabled value="a">3</TabsTrigger>
                 </TabsList>
                 <div className="ml-auto flex items-center gap-2">
                   <DropdownMenu>
@@ -501,7 +505,7 @@ export default function Employees() {
                   </Button>
                 </div>
               </div>
-              <TabsContent value="week">
+              <TabsContent value="e">
                 <Card x-chunk="dashboard-05-chunk-3">
                   <CardHeader className="px-7">
                     <CardTitle>Employees</CardTitle>
@@ -548,6 +552,7 @@ export default function Employees() {
                                 variant="outline"
                                 className="h-6 w-6"
                                 onClick={() => handleRoundEdit(user.id)}
+                                disabled
                               >
                                 <Pencil className="h-4 w-4" >
                                 </Pencil>
@@ -557,7 +562,7 @@ export default function Employees() {
                                 size="icon"
                                 variant="outline"
                                 className="h-6 w-6"
-                                onClick={() => handleRoundEdit(user.id)}
+                                onClick={() => handleUserdelete(user.id)}
                               >
                                 <Trash className="h-4 w-4 text-red-500">
                                 </Trash>
