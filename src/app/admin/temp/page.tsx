@@ -122,7 +122,7 @@ const RoundList = () => {
     fetchRounds();
   }, [selectedSite]);
 
-  const handleSiteChange = (event) => {
+  const handleSiteChange = (event: any) => {
     setSelectedSite(event.target.value);
   };
 
