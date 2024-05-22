@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
+import Image from "next/image";
+import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
@@ -22,9 +22,9 @@ import {
   Users2,
   User,
   Trash,
-} from "lucide-react"
+} from "lucide-react";
 import { CircularProgress } from "@mui/material";
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -32,8 +32,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -41,7 +41,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -50,16 +50,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
-} from "@/components/ui/pagination"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+} from "@/components/ui/pagination";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Table,
   TableBody,
@@ -67,64 +67,59 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { RoundView } from "@/app/admin/components/rounds.component"
-import { createClient } from "@/utils/supabase/client"
-import { useEffect, useState } from "react"
-import { Pencil } from "lucide-react"
+} from "@/components/ui/tooltip";
+import { RoundView } from "@/app/admin/components/rounds.component";
+import { createClient } from "@/utils/supabase/client";
+import { useEffect, useState } from "react";
+import { Pencil } from "lucide-react";
 
 type User = {
-  id: number
-  user: string
-  role: number
-  created_at: string
-  name: string
-  email: string
-}
+  id: number;
+  user: string;
+  role: number;
+  created_at: string;
+  name: string;
+  email: string;
+};
 
 const roles = new Map([
   [0, "Employee"],
   [25565, "Owner"],
   [65535, "Admin"],
-])
-
+]);
 
 function prettyDate(date: string) {
-  return new Date(date).toLocaleDateString('en-US')
+  return new Date(date).toLocaleDateString("en-US");
 }
-
 
 const ROLE_THRESHOLD = 25565;
 
-
 export default function Employees() {
-  const supabase = createClient()
+  const supabase = createClient();
 
-  const [hasAuthenticated, setHasAuthenticated] = useState(false)
+  const [hasAuthenticated, setHasAuthenticated] = useState(false);
 
   const [isFetchingRounds, setIsFetchingRounds] = useState(false);
-  const [newEmployeeName, setNewEmployeeName] = useState('')
-  const [newEmployeeEmail, setNewEmployeeEmail] = useState('')
-  const [newEmployeeRole, setNewEmployeeRole] = useState(0)
+  const [newEmployeeName, setNewEmployeeName] = useState("");
+  const [newEmployeeEmail, setNewEmployeeEmail] = useState("");
+  const [newEmployeeRole, setNewEmployeeRole] = useState(0);
 
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
 
-  const [userId, setUserId] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteIdTemp, setDeleteIdTemp] = useState<number | null>(null);
 
   function handleRedirection() {
     //redirect('/login');
-    console.log('redirecting to login')
+    console.log("redirecting to login");
   }
 
   function handleError(error: any) {
@@ -132,62 +127,57 @@ export default function Employees() {
     handleRedirection();
   }
 
-  const [currentRound, setCurrentRound] = useState<number | null>(null)
+  const [currentRound, setCurrentRound] = useState<number | null>(null);
 
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<User[]>([]);
 
   async function fetchUsers() {
     try {
       setIsFetchingRounds(true);
-      const jwt = (await supabase.auth.getSession()).data.session?.access_token
+      const jwt = (await supabase.auth.getSession()).data.session?.access_token;
       if (!jwt) {
-        throw new Error('No JWT found');
+        throw new Error("No JWT found");
       } else {
-        console.log('Fetching users with JWT:', jwt);
-        const response = await fetch('/api/users', {
+        console.log("Fetching users with JWT:", jwt);
+        const response = await fetch("/api/users", {
           headers: {
             Authorization: `Bearer ${jwt}`,
           },
         });
         if (!response.ok) {
-          throw new Error('Failed to fetch users');
+          throw new Error("Failed to fetch users");
         }
         const data = await response.json();
 
         setUsers(data);
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
     } finally {
       setIsFetchingRounds(false);
     }
   }
 
-
-
-
   async function auth() {
-
     const { data: authData, error: authError } = await supabase.auth.getUser();
 
     if (authError) {
-      console.error('Failed to authenticate user:', authError);
+      console.error("Failed to authenticate user:", authError);
       return handleRedirection();
     }
 
     const userId = authData?.user?.id;
     if (!userId) {
-      console.error('No user ID found');
+      console.error("No user ID found");
       return handleRedirection();
     } else {
-        setUserId(userId);
+      setUserId(userId);
     }
 
-
     const { data: userRoles, error: userRolesError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', authData?.user?.email);
+      .from("users")
+      .select("*")
+      .eq("email", authData?.user?.email);
 
     if (userRolesError) {
       return handleError(userRolesError);
@@ -195,12 +185,12 @@ export default function Employees() {
 
     if (userRoles && userRoles.length > 0) {
       const userRole = userRoles[0].role;
-      if (typeof userRole === 'number' && userRole >= ROLE_THRESHOLD) {
-        console.log('User is authenticated with role:', userRole);
+      if (typeof userRole === "number" && userRole >= ROLE_THRESHOLD) {
+        console.log("User is authenticated with role:", userRole);
         setHasAuthenticated(true);
       }
     } else {
-      console.error('No roles found for the user');
+      console.error("No roles found for the user");
       return handleRedirection();
     }
   }
@@ -217,57 +207,63 @@ export default function Employees() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures this effect runs only once
 
-
   function handleRoundEdit(roundId: number) {
     setCurrentRound(roundId);
-    console.log('Editing round:', currentRound);
+    console.log("Editing round:", currentRound);
   }
 
   async function handleEmployeeAdd() {
-    console.log('Adding employee');
+    console.log("Adding employee");
 
     const { data, error } = await supabase
-      .from('users')
+      .from("users")
       .insert([
-        { role: newEmployeeRole, name: newEmployeeName, email: newEmployeeEmail, id: Math.floor(Math.random() * 256) }
+        {
+          role: newEmployeeRole,
+          name: newEmployeeName,
+          email: newEmployeeEmail,
+          id: Math.floor(Math.random() * 256),
+        },
       ])
-      .select()
+      .select();
 
     // Assuming you're in a React component
-    fetch('https://api.scripkitty.store/email', {
-      method: 'POST',
+    fetch("https://api.scripkitty.store/email", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         email: newEmployeeEmail,
         name: newEmployeeName,
-        userId: userId
+        userId: userId,
       }),
     })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log(data); // Handle the response data as needed
-        })
-        .catch(error => {
-          console.error('There was a problem with the request:', error);
-        });
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data); // Handle the response data as needed
+      })
+      .catch((error) => {
+        console.error("There was a problem with the request:", error);
+      });
 
     if (error) {
-      console.error('Failed to add employee:', error);
+      console.error("Failed to add employee:", error);
     } else {
-      console.log('Added employee:', data);
+      console.log("Added employee:", data);
       await fetchUsers();
     }
   }
 
   function handleUserdelete(userId: number) {
-    // TODO: Implement user deletion
+    console.log("Deleting user:", userId);
+    setDeleteIdTemp(userId);
+    setShowDeleteModal(true);
   }
 
   return (
@@ -349,7 +345,9 @@ export default function Employees() {
                   className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                 >
                   <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
-                  <span className="sr-only text-secondary">Wheeler Peak Ice</span>
+                  <span className="sr-only text-secondary">
+                    Wheeler Peak Ice
+                  </span>
                 </Link>
                 <Link
                   href="#"
@@ -383,7 +381,10 @@ export default function Employees() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <div className="relative ml-auto flex-1 md:grow-0"> {/* Do not remove this div, doing so will hide the avatar */} </div>
+          <div className="relative ml-auto flex-1 md:grow-0">
+            {" "}
+            {/* Do not remove this div, doing so will hide the avatar */}{" "}
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -420,9 +421,7 @@ export default function Employees() {
         <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
           <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-              <Card
-                className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
-              >
+              <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
                 <CardHeader className="pb-3">
                   <CardTitle>Your Employees</CardTitle>
                   <CardDescription className="max-w-lg text-balance leading-relaxed">
@@ -431,7 +430,14 @@ export default function Employees() {
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
-                  <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}> Add Employee</Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    {" "}
+                    Add Employee
+                  </Button>
                 </CardFooter>
               </Card>
               <Card x-chunk="dashboard-05-chunk-1">
@@ -466,8 +472,12 @@ export default function Employees() {
               <div className="flex items-center">
                 <TabsList>
                   <TabsTrigger value="e">1</TabsTrigger>
-                  <TabsTrigger disabled value="o">2</TabsTrigger>
-                  <TabsTrigger disabled value="a">3</TabsTrigger>
+                  <TabsTrigger disabled value="o">
+                    2
+                  </TabsTrigger>
+                  <TabsTrigger disabled value="a">
+                    3
+                  </TabsTrigger>
                 </TabsList>
                 <div className="ml-auto flex items-center gap-2">
                   <DropdownMenu>
@@ -487,12 +497,8 @@ export default function Employees() {
                       <DropdownMenuCheckboxItem checked>
                         Employee
                       </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>
-                        Owner
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>
-                        Admin
-                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem>Owner</DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem>Admin</DropdownMenuCheckboxItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <Button
@@ -509,9 +515,7 @@ export default function Employees() {
                 <Card x-chunk="dashboard-05-chunk-3">
                   <CardHeader className="px-7">
                     <CardTitle>Employees</CardTitle>
-                    <CardDescription>
-                      Your employees.
-                    </CardDescription>
+                    <CardDescription>Your employees.</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Table>
@@ -529,22 +533,25 @@ export default function Employees() {
                           <TableHead className="hidden md:table-cell">
                             Role
                           </TableHead>
-                          <TableHead className="hidden md:table-cell">ID</TableHead>
-                          <TableHead >
-                            Actions
+                          <TableHead className="hidden md:table-cell">
+                            ID
                           </TableHead>
-
+                          <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {users.map((user) => (
                           <TableRow key={user.id}>
-                            <TableCell className="font-medium">{prettyDate(user.created_at)}</TableCell>
+                            <TableCell className="font-medium">
+                              {prettyDate(user.created_at)}
+                            </TableCell>
                             <TableCell className="hidden sm:table-cell">
-                                {user.email}
-                              </TableCell>
+                              {user.email}
+                            </TableCell>
                             <TableCell>{user.name}</TableCell>
-                            <TableCell>{roles.get(user.role)} | {user.role}</TableCell>
+                            <TableCell>
+                              {roles.get(user.role)} | {user.role}
+                            </TableCell>
                             <TableCell>{user.id}</TableCell>
                             <TableCell>
                               <Button
@@ -554,20 +561,17 @@ export default function Employees() {
                                 onClick={() => handleRoundEdit(user.id)}
                                 disabled
                               >
-                                <Pencil className="h-4 w-4" >
-                                </Pencil>
+                                <Pencil className="h-4 w-4"></Pencil>
                               </Button>
 
                               <Button
                                 size="icon"
                                 variant="outline"
                                 className="h-6 w-6"
-                                onClick={() => handleUserdelete(user.id)}
+                                onClick={() => handleUserdelete(user.email)}
                               >
-                                <Trash className="h-4 w-4 text-red-500">
-                                </Trash>
+                                <Trash className="h-4 w-4 text-red-500"></Trash>
                               </Button>
-
                             </TableCell>
                           </TableRow>
                         ))}
@@ -580,12 +584,10 @@ export default function Employees() {
           </div>
           {currentRound && <RoundView roundId={currentRound} />}
 
-          {isEditing &&
-
+          {isEditing && (
             <div className="">
               <div className="flex items-center gap-4 p-4 bg-background rounded-lg border border-muted-foreground">
                 <div className="flex-1">
-
                   <div className="flex flex-col gap-4">
                     <h2 className="text-2xl font-semibold">New Employee</h2>
                     <p className="text-sm text-muted-foreground">
@@ -600,7 +602,6 @@ export default function Employees() {
                     className="mt-4"
                     value={newEmployeeName}
                     onChange={(e) => setNewEmployeeName(e.target.value)}
-
                   />
                   <Input
                     type="text"
@@ -614,25 +615,103 @@ export default function Employees() {
                     placeholder="Enter employee role"
                     className="mt-4"
                     value={newEmployeeRole}
-                    onChange={(e) => setNewEmployeeRole(parseInt(e.target.value))}
+                    onChange={(e) =>
+                      setNewEmployeeRole(parseInt(e.target.value))
+                    }
                   />
 
-                  <Button className="mt-4" onClick={handleEmployeeAdd}>Add Employee</Button>
-                  <Button className="mt-4 ml-4" variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-
+                  <Button className="mt-4" onClick={handleEmployeeAdd}>
+                    Add Employee
+                  </Button>
+                  <Button
+                    className="mt-4 ml-4"
+                    variant="outline"
+                    onClick={() => setIsEditing(false)}
+                  >
+                    Cancel
+                  </Button>
                 </div>
               </div>
             </div>
-          }
+          )}
         </div>
       </div>
 
       {isFetchingRounds && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-90">
-          <CircularProgress color="primary" /> {/* Use CircularProgress component */}
+          <CircularProgress color="primary" />{" "}
+          {/* Use CircularProgress component */}
         </div>
       )}
 
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-90">
+          <div className="flex flex-col p-4 bg-background rounded-lg shadow-lg">
+            <h2 className="text-xl font-semibold">Delete User</h2>
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to delete this user?
+            </p>
+            <div className="flex gap-4 mt-4">
+              <Button
+                onClick={async () => {
+                  console.log("Deleting user:", deleteIdTemp);
+                  fetch("http://localhost:3000/delete", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      email: deleteIdTemp,
+                      userId: userId,
+                    }),
+                  })
+                    .then((response) => {
+                      if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                      }
+                      return response.json();
+                    })
+                    .then((data) => {
+                      console.log(data); // Handle the response data as needed
+                    })
+                    .catch((error) => {
+                      console.error(
+                        "There was a problem with the request:",
+                        error
+                      );
+                    });
+
+
+                  /*
+                  const { data, error } = await supabase
+                    .from('users')
+                    .delete()
+                    .eq('id', deleteIdTemp)
+                    .select()
+
+                  if (error) {
+                    console.error('Failed to delete user:', error);
+                  } else {
+                    console.log('Deleted user:', data);
+                    await fetchUsers();
+                  }
+                  */
+
+                  setShowDeleteModal(false);
+                }}
+              >
+                Delete
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }
