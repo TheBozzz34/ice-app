@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
+import Image from "next/image";
+import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
@@ -20,10 +20,11 @@ import {
   ShoppingCart,
   Truck,
   Users2,
-  User, Circle
-} from "lucide-react"
+  User,
+  Circle,
+} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -31,8 +32,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -40,7 +41,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -49,16 +50,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
-} from "@/components/ui/pagination"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+} from "@/components/ui/pagination";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Table,
   TableBody,
@@ -66,35 +67,30 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { RoundView } from "@/app/admin/components/rounds.component"
-import { createClient } from "@/utils/supabase/client"
-import { useEffect, useState } from "react"
-import { Pencil } from "lucide-react"
+} from "@/components/ui/tooltip";
+import { RoundView } from "@/app/admin/components/rounds.component";
+import { createClient } from "@/utils/supabase/client";
+import { useEffect, useState } from "react";
+import { Pencil } from "lucide-react";
 import { CircularProgress } from "@mui/material"; // Import CircularProgress from Material UI
 
 type Round = {
-  id: number
-  created_at: string
-  round_site: number
-  ice_sales_info_stacker: string
-  created_by: string
-  ice_sales_info_coin_box: number
-}
+  id: number;
+  created_at: string;
+  round_site: number;
+  ice_sales_info_stacker: string;
+  created_by: string;
+  ice_sales_info_coin_box: number;
+};
 
 function prettyDate(date: string) {
-  return new Date(date).toLocaleDateString('en-US')
+  return new Date(date).toLocaleDateString("en-US");
 }
 
 const sites = new Map([
@@ -105,10 +101,12 @@ const sites = new Map([
   [4, "Sequoia"],
   [5, "Atrisco"],
   [6, "Isleta"],
-  [7, "Edgewood"]
-])
+  [7, "Edgewood"],
+]);
 
-const sitesReverse = new Map(Array.from(sites.entries()).map(([k, v]) => [v, k]));
+const sitesReverse = new Map(
+  Array.from(sites.entries()).map(([k, v]) => [v, k]),
+);
 
 const sitesArray = Array.from(sites.entries());
 
@@ -119,22 +117,15 @@ function trigger() {
 }
 
 export default function Dashboard() {
-  const supabase = createClient()
-
-  useEffect(() => {
-    if (!hasAuthenticated) {
-      auth().then(r => console.log('Authenticated'));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const supabase = createClient();
 
   const [isFetchingRounds, setIsFetchingRounds] = useState(false); // New state variable for fetching status
-  const [hasClicked, setHasClicked] = useState(false)
-  const [hasAuthenticated, setHasAuthenticated] = useState(false)
+  const [hasClicked, setHasClicked] = useState(false);
+  const [hasAuthenticated, setHasAuthenticated] = useState(false);
 
   function handleRedirection() {
     //redirect('/login');
-    console.log('redirecting to login')
+    console.log("redirecting to login");
   }
 
   function handleError(error: any) {
@@ -142,97 +133,97 @@ export default function Dashboard() {
     handleRedirection();
   }
 
-  const [currentRound, setCurrentRound] = useState<number | null>(null)
+  const [currentRound, setCurrentRound] = useState<number | null>(null);
 
-  const [rounds, setRounds] = useState<Round[]>([])
+  const [rounds, setRounds] = useState<Round[]>([]);
 
-  const [userId, setUserId] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [isExporting, setIsExporting] = useState(false);
 
-  const [depositFilter, setDepositFilter] = useState('all');
+  const [depositFilter, setDepositFilter] = useState("all");
 
   const [selectedSite, setSelectedSite] = useState(1);
 
   const [triggerValue, setTriggerValue] = useState(0);
 
-  async function fetchRounds() {
-    try {
-      setIsFetchingRounds(true);
-      const jwt = (await supabase.auth.getSession()).data.session?.access_token
-      if (!jwt) {
-        throw new Error('No JWT found');
-      } else {
-        console.log('Fetching rounds with JWT:', jwt);
-        const response = await fetch('/api/rounds', {
-          method: 'GET',
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setIsFetchingRounds(true);
+        const jwt = (await supabase.auth.getSession()).data.session
+          ?.access_token;
+        if (!jwt) {
+          throw new Error("No JWT found");
+        }
+        const response = await fetch("/api/rounds", {
+          method: "GET",
           headers: {
-            'Authorization': `Bearer ${jwt}`,
+            Authorization: `Bearer ${jwt}`,
           },
         });
         if (!response.ok) {
-          throw new Error('Failed to fetch rounds');
+          throw new Error("Failed to fetch rounds");
         }
         const data = await response.json();
-        console.log('Fetched rounds:', data); // Log fetched data
         setRounds(data);
+      } catch (error) {
+        console.error("Error fetching rounds:", error);
+      } finally {
+        setIsFetchingRounds(false);
       }
-    } catch (error) {
-      console.error('Error fetching rounds:', error);
-    } finally {
-      setIsFetchingRounds(false); // Set fetching status to false when fetching ends (success or error)
     }
-  }
 
+    if (hasAuthenticated) {
+      fetchData();
+    } else {
+      auth();
+    }
+  }, [hasAuthenticated]);
 
   async function auth() {
-
-    const { data: authData, error: authError } = await supabase.auth.getUser();
-
-    if (authError) {
-      console.error('Failed to authenticate user:', authError);
-      return handleRedirection();
-    }
-
-    const userId = authData?.user?.id;
-    if (!userId) {
-      console.error('No user ID found');
-      return handleRedirection();
-    }
-
-    setUserId(userId);
-
-    const { data: userRoles, error: userRolesError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', authData?.user?.email);
-
-    if (userRolesError) {
-      return handleError(userRolesError);
-    }
-
-    if (userRoles && userRoles.length > 0) {
-      const userRole = userRoles[0].role;
-      if (typeof userRole === 'number' && userRole >= ROLE_THRESHOLD) {
-        console.log('User is authenticated with role:', userRole);
-        setHasAuthenticated(true);
+    try {
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+      if (authError) {
+        throw authError;
       }
-    } else {
-      console.error('No roles found for the user');
-      return handleRedirection();
+
+      const userId = authData?.user?.id;
+      if (!userId) {
+        throw new Error("No user ID found");
+      }
+      setUserId(userId);
+
+      const { data: userRoles, error: userRolesError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", authData?.user?.email);
+
+      if (userRolesError) {
+        throw userRolesError;
+      }
+
+      if (userRoles && userRoles.length > 0) {
+        const userRole = userRoles[0].role;
+        if (typeof userRole === "number" && userRole >= ROLE_THRESHOLD) {
+          console.log("User is authenticated with role:", userRole);
+          setHasAuthenticated(true);
+        }
+      } else {
+        throw new Error("No roles found for the user");
+      }
+    } catch (error) {
+      console.error("Authentication error:", error);
+      handleRedirection(); // Handle redirection or error as needed
     }
   }
 
-  useEffect(() => {
-    fetchRounds()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   function handleRoundEdit(roundId: number) {
-    setCurrentRound(roundId);
+    // setCurrentRound(roundId);
     setTriggerValue(trigger());
 
-    console.log('Editing round:', currentRound);
+    console.log("Editing round:", currentRound);
   }
 
   async function exportRounds() {
@@ -241,46 +232,43 @@ export default function Dashboard() {
     }
 
     setIsExporting(true);
-    const response = await fetch('https://api.scripkitty.store/export', { // this is so shit
-      method: 'POST',
+    const response = await fetch("https://api.scripkitty.store/export", {
+      // this is so shit
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         userId: userId,
       }),
-    }).then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      return response.blob(); // need error checking here
     })
-      .then(blob => {
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        return response.blob(); // need error checking here
+      })
+      .then((blob) => {
         // Create a temporary URL for the blob and trigger download
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
+        const a = document.createElement("a");
+        a.style.display = "none";
         a.href = url;
-        a.download = 'rounds.csv';
+        a.download = "rounds.csv";
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
       })
-      .catch(error => {
-        console.error('There was a problem with the request:', error);
-      }).finally(() => {
+      .catch((error) => {
+        console.error("There was a problem with the request:", error);
+      })
+      .finally(() => {
         setIsExporting(false);
       });
   }
 
-  let filteredRounds = rounds.filter((round) => round.round_site === selectedSite);
-
-  useEffect(() => {
-    console.log('Filtered rounds:', filteredRounds);
-  }, [filteredRounds])
-
-  const [emailToName, setEmailToName] = useState(new Map<string, string>())
+  const [emailToName, setEmailToName] = useState(new Map<string, string>());
 
   /*
     useEffect(() => {
@@ -318,12 +306,8 @@ export default function Dashboard() {
 
    */
 
-
-
-
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
-
       {!isFetchingRounds && (
         <>
           <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -403,7 +387,9 @@ export default function Dashboard() {
                       className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                     >
                       <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
-                      <span className="sr-only text-secondary">Wheeler Peak Ice</span>
+                      <span className="sr-only text-secondary">
+                        Wheeler Peak Ice
+                      </span>
                     </Link>
                     <Link
                       href="/admin"
@@ -437,8 +423,7 @@ export default function Dashboard() {
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
-              <div className="relative ml-auto flex-1 md:grow-0">
-              </div>
+              <div className="relative ml-auto flex-1 md:grow-0"></div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -476,7 +461,8 @@ export default function Dashboard() {
               <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
                 <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
                   <Card
-                    className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
+                    className="sm:col-span-2"
+                    x-chunk="dashboard-05-chunk-0"
                   >
                     <CardHeader className="pb-3">
                       <CardTitle>Your Rounds</CardTitle>
@@ -538,7 +524,7 @@ export default function Dashboard() {
                       </Button>
                     </div>
                   </div>
-                 
+
 
                  {sitesArray.map(([id, site]) => (
                      <TabsContent value={site} key={id}>
@@ -605,9 +591,12 @@ export default function Dashboard() {
                           {site}
                         </TabsTrigger>
                       ))*/}
-                        <TabsTrigger value="Alameda" onClick={() => setSelectedSite(1)}>
-                            Alameda
-                        </TabsTrigger>
+                      <TabsTrigger
+                        value="Alameda"
+                        onClick={() => setSelectedSite(1)}
+                      >
+                        Alameda
+                      </TabsTrigger>
                     </TabsList>
                     <div className="ml-auto flex items-center gap-2">
                       <DropdownMenu>
@@ -618,19 +607,33 @@ export default function Dashboard() {
                             className="h-7 gap-1 text-sm"
                           >
                             <ListFilter className="h-3.5 w-3.5" />
-                            <span className="sr-only sm:not-sr-only">Filter</span>
+                            <span className="sr-only sm:not-sr-only">
+                              Filter
+                            </span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Filter by</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuCheckboxItem disabled checked={depositFilter === 'deposited'} onClick={() => setDepositFilter('deposited')}>
+                          <DropdownMenuCheckboxItem
+                            disabled
+                            checked={depositFilter === "deposited"}
+                            onClick={() => setDepositFilter("deposited")}
+                          >
                             Deposited
                           </DropdownMenuCheckboxItem>
-                          <DropdownMenuCheckboxItem disabled checked={depositFilter === 'pending'} onClick={() => setDepositFilter('pending')}>
+                          <DropdownMenuCheckboxItem
+                            disabled
+                            checked={depositFilter === "pending"}
+                            onClick={() => setDepositFilter("pending")}
+                          >
                             Pending Deposit
                           </DropdownMenuCheckboxItem>
-                          <DropdownMenuCheckboxItem disabled checked={depositFilter === 'all'} onClick={() => setDepositFilter('all')}>
+                          <DropdownMenuCheckboxItem
+                            disabled
+                            checked={depositFilter === "all"}
+                            onClick={() => setDepositFilter("all")}
+                          >
                             All Rounds
                           </DropdownMenuCheckboxItem>
                         </DropdownMenuContent>
@@ -643,9 +646,16 @@ export default function Dashboard() {
                         <File className="h-3.5 w-3.5" />
 
                         {isExporting ? (
-                          <span className="sr-only sm:not-sr-only">Export in progress...</span>
+                          <span className="sr-only sm:not-sr-only">
+                            Export in progress...
+                          </span>
                         ) : (
-                          <span className="sr-only sm:not-sr-only" onClick={exportRounds}>Export</span>
+                          <span
+                            className="sr-only sm:not-sr-only"
+                            onClick={exportRounds}
+                          >
+                            Export
+                          </span>
                         )}
                       </Button>
                     </div>
@@ -673,17 +683,27 @@ export default function Dashboard() {
                               <TableHead className="hidden md:table-cell">
                                 Bills
                               </TableHead>
-                              <TableHead className="hidden md:table-cell">Coins</TableHead>
+                              <TableHead className="hidden md:table-cell">
+                                Coins
+                              </TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {rounds.map((round) => (
                               <TableRow key={round.id}>
-                                <TableCell className="font-medium">{prettyDate(round.created_at)}</TableCell>
-                                <TableCell>{sites.get(round.round_site)}</TableCell>
+                                <TableCell className="font-medium">
+                                  {prettyDate(round.created_at)}
+                                </TableCell>
+                                <TableCell>
+                                  {sites.get(round.round_site)}
+                                </TableCell>
                                 <TableCell>{round.created_by}</TableCell>
-                                <TableCell>{round.ice_sales_info_stacker}</TableCell>
-                                <TableCell className="text-right">{round.ice_sales_info_coin_box}</TableCell>
+                                <TableCell>
+                                  {round.ice_sales_info_stacker}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  {round.ice_sales_info_coin_box}
+                                </TableCell>
                                 <TableCell className="text-right">
                                   <Button
                                     variant="outline"
@@ -725,17 +745,27 @@ export default function Dashboard() {
                               <TableHead className="hidden md:table-cell">
                                 Employee
                               </TableHead>
-                              <TableHead className="text-right">Amount</TableHead>
+                              <TableHead className="text-right">
+                                Amount
+                              </TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {filteredRounds.map((round) => (
+                            {rounds.map((round) => (
                               <TableRow key={round.id}>
-                                <TableCell className="font-medium">{prettyDate(round.created_at)}</TableCell>
-                                <TableCell>{sites.get(round.round_site)}</TableCell>
-                                <TableCell>{round.ice_sales_info_stacker}</TableCell>
+                                <TableCell className="font-medium">
+                                  {prettyDate(round.created_at)}
+                                </TableCell>
+                                <TableCell>
+                                  {sites.get(round.round_site)}
+                                </TableCell>
+                                <TableCell>
+                                  {round.ice_sales_info_stacker}
+                                </TableCell>
                                 <TableCell>{round.created_by}</TableCell>
-                                <TableCell className="text-right">{round.ice_sales_info_coin_box}</TableCell>
+                                <TableCell className="text-right">
+                                  {round.ice_sales_info_coin_box}
+                                </TableCell>
                                 <TableCell className="text-right">
                                   <Button
                                     variant="outline"
@@ -754,18 +784,15 @@ export default function Dashboard() {
                       </CardContent>
                     </Card>
                   </TabsContent>
-
-                  
                 </Tabs>
-
               </div>
-              {currentRound && <RoundView roundId={currentRound} trigger={triggerValue} />}
+              {currentRound && (
+                <RoundView roundId={currentRound} trigger={triggerValue} />
+              )}
             </div>
           </div>
         </>
       )}
-
-
 
       {/*
     <div id="permission-denied" className={`fixed inset-0 z-50 items-center justify-center bg-background bg-opacity-90 ${showPermissionDenied ? 'flex' : 'hidden'}`}>
@@ -782,11 +809,10 @@ export default function Dashboard() {
 
       {isFetchingRounds && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-90">
-          <CircularProgress color="primary" /> {/* Use CircularProgress component */}
+          <CircularProgress color="primary" />{" "}
+          {/* Use CircularProgress component */}
         </div>
       )}
-
-
     </div>
-  )
+  );
 }
