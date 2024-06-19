@@ -115,7 +115,7 @@ export default function Employees() {
   const [userId, setUserId] = useState<string | null>(null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteIdTemp, setDeleteIdTemp] = useState<number | null>(null);
+  const [deleteIdTemp, setDeleteIdTemp] = useState<string | null>(null);
 
   function handleRedirection() {
     //redirect('/login');
@@ -260,7 +260,7 @@ export default function Employees() {
     }
   }
 
-  function handleUserdelete(userId: number) {
+  function handleUserdelete(userId: string) {
     console.log("Deleting user:", userId);
     setDeleteIdTemp(userId);
     setShowDeleteModal(true);
@@ -677,10 +677,9 @@ export default function Employees() {
                     .catch((error) => {
                       console.error(
                         "There was a problem with the request:",
-                        error
+                        error,
                       );
                     });
-
 
                   /*
                   const { data, error } = await supabase
