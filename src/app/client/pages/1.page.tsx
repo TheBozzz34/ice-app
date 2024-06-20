@@ -126,6 +126,19 @@ export default function Page1() {
           <h3 className="text-2xl font-bold tracking-tight">New round entry</h3>
 
           <div className="grid gap-4 p-4">
+          	<span className="text-lg font-semibold">Site</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <span className="dropdown">Choose Site</span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setSite(4)}>
+                  Pojoaque
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          
+          
             <span className="text-lg font-semibold">Ice Sales Info</span>
             <Label htmlFor="ice_sales_stacker">Stacker:</Label>
             <Input
@@ -146,7 +159,7 @@ export default function Page1() {
             <span className="text-lg font-semibold">
               Water Coin Calculation
             </span>
-            <Label htmlFor="water_coin_current">$Box current: </Label>
+            <Label htmlFor="water_coin_current">Current Box: </Label>
             <Input
               id="water_coin_current"
               type="number"
@@ -169,29 +182,7 @@ export default function Page1() {
               value={water_bills_sales}
             />
 
-            <span className="text-lg font-semibold">Site</span>
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <span>Choose Site</span>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setSite(1)}>
-                  Site 1
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSite(2)}>
-                  Site 2
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSite(3)}>
-                  Site 3
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSite(4)}>
-                  Site 4
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSite(5)}>
-                  Site 5
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            
 
             <Button onClick={startFlow}>{buttonMessage}</Button>
           </div>

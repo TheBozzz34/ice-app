@@ -84,3 +84,8 @@ main {
 }
 .button.login {
 }
+
+span.dropdown { 
+	padding: 15px 12px;
+	background: #dadada;
+}
