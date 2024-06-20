@@ -220,7 +220,7 @@ export default function Dashboard() {
   }
 
   function handleRoundEdit(roundId: number) {
-    // setCurrentRound(roundId);
+    setCurrentRound(roundId);
     setTriggerValue(trigger());
 
     console.log("Editing round:", currentRound);
@@ -685,6 +685,9 @@ export default function Dashboard() {
                               </TableHead>
                               <TableHead className="hidden md:table-cell">
                                 Coins
+                              </TableHead>
+                              <TableHead className="hidden md:table-cell">
+                                Edit
                               </TableHead>
                             </TableRow>
                           </TableHeader>
