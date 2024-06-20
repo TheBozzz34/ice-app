@@ -126,19 +126,11 @@ export default function Page1() {
           <h3 className="text-2xl font-bold tracking-tight">New round entry</h3>
 
           <div className="grid gap-4 p-4">
-          	<span className="text-lg font-semibold">Site</span>
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <span className="dropdown">Choose Site</span>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setSite(4)}>
-                  Pojoaque
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          
-          
+            <select name="site" id="site">
+              <option value="0">Choose a Site</option>
+              <option onClick={() => setSite(4)} value="4">Pojoaque</option>
+            </select>
+
             <span className="text-lg font-semibold">Ice Sales Info</span>
             <Label htmlFor="ice_sales_stacker">Stacker:</Label>
             <Input
