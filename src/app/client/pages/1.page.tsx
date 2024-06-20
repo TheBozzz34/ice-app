@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,10 +52,10 @@ export default function Page1() {
     if (prev_water_coin) {
       let tmp = water_coin_calc_current - prev_water_coin;
 
-      console.log("total wv coin:" + tmp)
+      console.log("total wv coin:" + tmp);
 
       let wf_bills_total = a + tmp; // wells fargo bills deposit total
-      console.log("wf bills total:" + a + "+" + tmp)
+      console.log("wf bills total:" + a + "+" + tmp);
 
       // ---------------------
 
@@ -100,9 +100,9 @@ export default function Page1() {
         setButtonMessage("Flow Completed");
       }
     } else {
-      console.log("No rolling value! This is bad.")
+      console.log("No rolling value! This is bad.");
     }
-  } 
+  }
 
   async function latestWaterCoin() {
     const { data, error } = await supabase
@@ -136,7 +136,7 @@ export default function Page1() {
             <Input
               id="ice_sales_stacker"
               type="number"
-              onChange={(e) => setA(parseInt(e.target.value))}
+              onChange={(e) => setA(parseFloat(e.target.value))}
               value={a}
             />
 
@@ -144,7 +144,7 @@ export default function Page1() {
             <Input
               id="ice_sales_coin"
               type="number"
-              onChange={(e) => setB(parseInt(e.target.value))}
+              onChange={(e) => setB(parseFloat(e.target.value))}
               value={b}
             />
 
@@ -156,7 +156,7 @@ export default function Page1() {
               id="water_coin_current"
               type="number"
               onChange={(e) =>
-                setWaterCoinCalcCurrent(parseInt(e.target.value))
+                setWaterCoinCalcCurrent(parseFloat(e.target.value))
               }
               value={water_coin_calc_current}
             />
@@ -170,7 +170,7 @@ export default function Page1() {
             <Input
               id="water_bills_sales"
               type="number"
-              onChange={(e) => setWaterBillsSales(parseInt(e.target.value))}
+              onChange={(e) => setWaterBillsSales(parseFloat(e.target.value))}
               value={water_bills_sales}
             />
 
