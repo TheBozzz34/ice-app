@@ -583,7 +583,7 @@ export default function Dashboard() {
                 </Tabs>
                 */}
 
-                <Tabs defaultValue="Alameda">
+                <Tabs defaultValue="all">
                   <div className="flex items-center">
                     <TabsList>
                       {/*sitesArray.map(([id, site]) => (
@@ -592,10 +592,10 @@ export default function Dashboard() {
                         </TabsTrigger>
                       ))*/}
                       <TabsTrigger
-                        value="Alameda"
+                        value="all"
                         onClick={() => setSelectedSite(1)}
                       >
-                        Alameda
+                        All Rounds
                       </TabsTrigger>
                     </TabsList>
                     <div className="ml-auto flex items-center gap-2">
@@ -661,7 +661,7 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <TabsContent value="Alameda">
+                  <TabsContent value="all">
                     <Card x-chunk="dashboard-05-chunk-3">
                       <CardHeader className="px-7">
                         <CardTitle>Rounds</CardTitle>
