@@ -29,10 +29,11 @@ export default function Page1() {
     }
   }
 
-  let [ice_sales_info_stacker, setIceSalesStacker] = useState(0); // bad, causes lots of NaN errors
+  let [ice_sales_info_stacker, setIceSalesStacker] = useState(0); // bad, causes lots of NaN errors need to fix
   let [ice_sales_info_coin_box, setIceSalesCoinBox] = useState(0);
   let [water_coin_calc_current, setWaterCoinCalcCurrent] = useState(0);
   let [water_bills_sales, setWaterBillsSales] = useState(0);
+  let [recycled_coins, setRecycledCoins] = useState(0);
   let [site, setSite] = useState(0);
 
   // tmp
@@ -149,7 +150,7 @@ export default function Page1() {
             />
 
             <span className="text-lg font-semibold">
-              Water Coin Calculation
+              Water Sales Info
             </span>
             <Label htmlFor="water_coin_current">Current Box: </Label>
             <Input
@@ -160,10 +161,6 @@ export default function Page1() {
               }
               value={water_coin_calc_current}
             />
-
-            <span className="text-lg font-semibold">
-              Water Bills Calculation
-            </span>
             <Label htmlFor="water_bills_sales">
               Water Sales (from SmartIce):{" "}
             </Label>
@@ -172,6 +169,16 @@ export default function Page1() {
               type="number"
               onChange={(e) => setWaterBillsSales(parseFloat(e.target.value))}
               value={water_bills_sales}
+            />
+
+            <Label htmlFor="recycle">
+              Recycled Coins:{" "}
+            </Label>
+            <Input
+              id="recycle"
+              type="number"
+              onChange={(e) => setRecycledCoins(parseFloat(e.target.value))}
+              value={recycled_coins}
             />
 
             
