@@ -52,7 +52,7 @@ export default function Dashboard() {
   const supabase = createClient()
   const router = useRouter()
 
-  const [userRole, setUserRole] = useState<number>([])
+  const [userRole, setUserRole] = useState<number>(0);
 
   function handleError(error: any) {
     console.error(error)
