@@ -91,6 +91,7 @@ export default function Page1() {
           wf_deposit_coins_total: wf_coins_total,
           wf_deposit_bills_total: wf_bills_total,
           round_site: site,
+          recycled_coins,
         },
       ]);
 

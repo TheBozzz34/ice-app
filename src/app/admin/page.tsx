@@ -23,6 +23,7 @@ import {
   Users2,
   User,
   Circle,
+  Bug
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -461,6 +462,12 @@ export default function Dashboard() {
                       </CardDescription>
                     </CardHeader>
                   </Card>
+                  <a href="https://bugs.scripkitty.store/bugzilla/" target="_blank" rel="noreferrer"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-red-400 transition-all hover:text-red-700 bg-transparent hover:bg-transparent justify-start border-2 w-fit font-semibold h-14"
+                >
+                  <Bug className="h-6 w-6" />
+                  Submit a bug
+                </a>
                 </div>
                 {/*
                 <Tabs defaultValue="Alameda">

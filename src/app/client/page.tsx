@@ -13,6 +13,7 @@ import {
   Search,
   ShoppingCart,
   Users,
+  Bug
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -35,7 +36,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import Page2 from "./pages/2.page"
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import Page1 from "./pages/1.page"
 import Page3 from "./pages/3.page"
 import Page4 from "./pages/4.page"
@@ -50,6 +51,8 @@ const ROLE_THRESHOLD = 0
 export default function Dashboard() {
   const supabase = createClient()
   const router = useRouter()
+
+  const [userRole, setUserRole] = useState<number>([])
 
   function handleError(error: any) {
     console.error(error)
@@ -86,22 +89,22 @@ export default function Dashboard() {
       console.error('Failed to authenticate user:', authError);
       router.push("/error")
     }
-    
+
     if (!authData) {
       console.error('No user data found');
       router.push("/error")
     }
-  
+
     const { data: userRoles, error: userRolesError } = await supabase
       .from('users')
       .select('*')
       .eq('email', authData?.user?.email);
 
-  
+
     if (userRolesError) {
       return handleError(userRolesError);
     }
-  
+
     if (userRoles && userRoles.length > 0) {
       console.log('User roles:', userRoles);
       const userRole = userRoles[0].role;
@@ -114,6 +117,8 @@ export default function Dashboard() {
     }
 
     console.log('User is authenticated with role:', userRoles[0].role);
+
+    setUserRole(userRoles[0].role)
   }
 
   auth()
@@ -137,14 +142,14 @@ export default function Dashboard() {
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               <Button
                 onClick={() => setActivePage(1)}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 1 ? 'text-primary border' : 'text-muted-foreground' }`}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${activePage === 1 ? 'text-primary border' : 'text-muted-foreground'}`}
               >
                 <Home className="h-4 w-4" />
                 Create Round
               </Button>
               <Button
                 onClick={() => setActivePage(2)}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${ activePage === 2 ? 'text-primary border' : 'text-muted-foreground' }`}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary bg-transparent hover:bg-transparent justify-start ${activePage === 2 ? 'text-primary border' : 'text-muted-foreground'}`}
               >
                 <ShoppingCart className="h-4 w-4" />
                 View Rounds
@@ -179,28 +184,29 @@ export default function Dashboard() {
                   <span className="sr-only">Wheeler Peak Ice</span>
                 </Link>
                 <Button
-                onClick={() => setActivePage(1)}
-                className={`mx-[-0.65rem] flex gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground ${ activePage === 1 ? 'text-primary border' : 'text-muted-foreground' }`}
-              >
-                <LineChart className="h-5 w-5" />
-                Create Round
-              </Button>
-              <Button
-                onClick={() => setActivePage(2)}
-                className={`mx-[-0.65rem] flex gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground ${ activePage === 2 ? 'text-primary border' : 'text-muted-foreground' }`}
-              >
-                <LineChart className="h-5 w-5" />
-                View Rounds
-              </Button>
+                  onClick={() => setActivePage(1)}
+                  className={`mx-[-0.65rem] flex gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground ${activePage === 1 ? 'text-primary border' : 'text-muted-foreground'}`}
+                >
+                  <LineChart className="h-5 w-5" />
+                  Create Round
+                </Button>
+                <Button
+                  onClick={() => setActivePage(2)}
+                  className={`mx-[-0.65rem] flex gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground ${activePage === 2 ? 'text-primary border' : 'text-muted-foreground'}`}
+                >
+                  <LineChart className="h-5 w-5" />
+                  View Rounds
+                </Button>
               </nav>
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
-            <span
-              className="text-lg font-semibold md:text-2xl"
+            <a href="https://bugs.scripkitty.store/bugzilla/" target="_blank" rel="noreferrer"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-red-400 transition-all hover:text-red-700 bg-transparent hover:bg-transparent justify-start border-2 w-fit font-semibold"
             >
-              Round Management Dashboard
-            </span>
+              <Bug className="h-6 w-6" />
+              Submit a bug
+            </a>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -212,12 +218,14 @@ export default function Dashboard() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Round manager</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <a href="/admin">Owner page</a>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <a href="/playboicarti">Super Admin (WIP)</a>
-              </DropdownMenuItem>
+
+
+              {userRole >= ROLE_THRESHOLD && (
+                <DropdownMenuItem>
+                  <a href="/admin">Owner page</a>
+                </DropdownMenuItem>
+              )}
+
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <a href="/logout">Logout</a>
