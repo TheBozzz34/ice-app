@@ -10,7 +10,7 @@ export default async function SignOutButton() {
         if (!error) {
             redirect('/')
         } else {
-            redirect('/error')
+            redirect('/error?__message=' + btoa(error.message))
         }
     }
 

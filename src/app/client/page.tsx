@@ -48,7 +48,7 @@ export default function Dashboard() {
 
   function handleError(error: any) {
     console.error(error)
-    router.push("/error")
+    router.push("/error?__message=" + btoa(error?.message))
   }
 
   async function getUserRoundsCount() {
@@ -99,13 +99,13 @@ export default function Dashboard() {
       console.log('User roles:', userRoles);
       const userRole = userRoles[0].role;
       if (typeof userRole === 'number' && userRole < ROLE_THRESHOLD) {
-        router.push("/error")
+        router.push("/error?__message=" + btoa('User does not have the required role'));
         return
       }
       setUserRole(userRole)
     } else {
       console.error('No roles found for the user');
-      router.push("/error")
+      router.push("/error?__message=" + btoa('No roles found for the user'))
     }
   }
 
