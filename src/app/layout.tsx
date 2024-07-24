@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import PopoutMenu from "@/components/PopoutMenu/PopoutMenu.component";
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
           delayDuration={200}
         ><Analytics /><SpeedInsights />
             {children}
+            <PopoutMenu />
 
         </TooltipProvider>
       </body>
