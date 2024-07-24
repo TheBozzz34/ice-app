@@ -18,13 +18,7 @@ import {
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,34 +27,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import Page2 from "./pages/2.page"
-import { useState, useEffect, use } from "react"
+import { useState, useEffect } from "react"
 import Page1 from "./pages/1.page"
-import Page3 from "./pages/3.page"
-import Page4 from "./pages/4.page"
-import Page5 from "./pages/5.page"
 
 import { createClient } from "@/utils/supabase/client"
 import { useRouter } from 'next/navigation'
 
 const ROLE_THRESHOLD = 0
 
-
 export default function Dashboard() {
   const supabase = createClient()
   const router = useRouter()
 
   const [userRole, setUserRole] = useState<number>(0);
+  const [activePage, setActivePage] = useState(1)
+  const [rounds, setRounds] = useState(0)
+  const [loading, setLoading] = useState(true)
 
   function handleError(error: any) {
     console.error(error)
     router.push("/error")
   }
-
-  let [activePage, setActivePage] = useState(1)
-  let [rounds, setRounds] = useState(0)
 
   async function getUserRoundsCount() {
     const { data: user, error: userError } = await supabase.auth.getUser()
@@ -82,17 +71,18 @@ export default function Dashboard() {
   }
 
   async function auth() {
-
     const { data: authData, error: authError } = await supabase.auth.getUser();
 
     if (authError) {
       console.error('Failed to authenticate user:', authError);
-      router.push("/error")
+      router.push("/error?__message=" + btoa(authError?.message))
+      return
     }
 
     if (!authData) {
       console.error('No user data found');
-      router.push("/error")
+      router.push("/error?__message=" + btoa('No user data found'))
+      return
     }
 
     const { data: userRoles, error: userRolesError } = await supabase
@@ -100,9 +90,9 @@ export default function Dashboard() {
       .select('*')
       .eq('email', authData?.user?.email);
 
-
     if (userRolesError) {
-      return handleError(userRolesError);
+      handleError(userRolesError);
+      return
     }
 
     if (userRoles && userRoles.length > 0) {
@@ -110,23 +100,25 @@ export default function Dashboard() {
       const userRole = userRoles[0].role;
       if (typeof userRole === 'number' && userRole < ROLE_THRESHOLD) {
         router.push("/error")
+        return
       }
+      setUserRole(userRole)
     } else {
       console.error('No roles found for the user');
       router.push("/error")
     }
-
-    console.log('User is authenticated with role:', userRoles[0].role);
-
-    setUserRole(userRoles[0].role)
   }
 
-  auth()
-
   useEffect(() => {
+    auth().then(() => {
+      setLoading(false)
+    })
     getUserRoundsCount()
   }, [])
 
+  if (loading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -218,14 +210,11 @@ export default function Dashboard() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Round manager</DropdownMenuLabel>
               <DropdownMenuSeparator />
-
-
               {userRole >= ROLE_THRESHOLD && (
                 <DropdownMenuItem>
                   <a href="/admin">Owner page</a>
                 </DropdownMenuItem>
               )}
-
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <a href="/logout">Logout</a>
@@ -236,12 +225,8 @@ export default function Dashboard() {
         <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
           {activePage === 1 && <Page1 />}
           {activePage === 2 && <Page2 />}
-          {activePage === 3 && <Page3 />}
-          {activePage === 4 && <Page4 />}
-          {activePage === 5 && <Page5 />}
         </div>
       </div>
-
     </div>
   )
 }

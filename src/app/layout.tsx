@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -32,10 +31,11 @@ export default function RootLayout({
       >
         <TooltipProvider
           delayDuration={200}
-        ><Analytics/><SpeedInsights/>
-        {children}
+        ><Analytics /><SpeedInsights />
+            {children}
+
         </TooltipProvider>
-        </body>
+      </body>
     </html>
   );
 }
