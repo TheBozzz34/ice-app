@@ -47,6 +47,7 @@ export default function Page1() {
     setButtonMessage("Flow Started");
 
     // bills calculation
+    //TODO - Check math here
 
     const prev_water_coin = await latestWaterCoin(); // rolling value thing
 

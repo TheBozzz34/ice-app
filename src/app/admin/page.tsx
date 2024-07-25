@@ -26,6 +26,20 @@ import {
   Bug
 } from "lucide-react";
 
+import * as React from "react"
+import { addDays, format } from "date-fns"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { DateRange } from "react-day-picker"
+
+import { cn } from "@/lib/utils"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
+
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -124,6 +138,23 @@ export default function Dashboard() {
   const [isFetchingRounds, setIsFetchingRounds] = useState(false); // New state variable for fetching status
   const [hasClicked, setHasClicked] = useState(false);
   const [hasAuthenticated, setHasAuthenticated] = useState(false);
+
+  const now = new Date();
+  const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfPreviousMonth = new Date(startOfCurrentMonth);
+  startOfPreviousMonth.setMonth(startOfPreviousMonth.getMonth() - 1);
+  const endOfPreviousMonth = new Date(startOfCurrentMonth);
+
+
+  const [date, setDate] = React.useState<DateRange | undefined>({
+    from: startOfPreviousMonth,
+    to: endOfPreviousMonth,
+  })
+
+  useEffect(() => {
+    // log the date range
+    console.log(date)
+  }, [date])
 
   function handleRedirection() {
     //redirect('/login');
@@ -271,6 +302,7 @@ export default function Dashboard() {
   }
 
   const [emailToName, setEmailToName] = useState(new Map<string, string>());
+
 
   /*
     useEffect(() => {
@@ -463,11 +495,11 @@ export default function Dashboard() {
                     </CardHeader>
                   </Card>
                   <a href="https://bugs.scripkitty.store/bugzilla/" target="_blank" rel="noreferrer"
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-red-400 transition-all hover:text-red-700 bg-transparent hover:bg-transparent justify-start border-2 w-fit font-semibold h-14"
-                >
-                  <Bug className="h-6 w-6" />
-                  Submit a bug
-                </a>
+                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-red-400 transition-all hover:text-red-700 bg-transparent hover:bg-transparent justify-start border-2 w-fit font-semibold h-14"
+                  >
+                    <Bug className="h-6 w-6" />
+                    Submit a bug
+                  </a>
                 </div>
                 {/*
                 <Tabs defaultValue="Alameda">
@@ -579,65 +611,49 @@ export default function Dashboard() {
                 </Tabs>
                 */}
 
-                <Tabs defaultValue="all">
+                <Tabs defaultValue="lastMonth">
                   <div className="flex items-center">
-                    <TabsList>
-                      {/*sitesArray.map(([id, site]) => (
-                        <TabsTrigger key={id} value={site} onClick={() => setSelectedSite(id)}>
-                          {site}
-                        </TabsTrigger>
-                      ))*/}
-                      <TabsTrigger
-                        value="all"
-                        onClick={() => setSelectedSite(1)}
-                      >
-                        All Rounds
-                      </TabsTrigger>
-                    </TabsList>
                     <div className="ml-auto flex items-center gap-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                      <Popover>
+                        <PopoverTrigger asChild>
                           <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 gap-1 text-sm"
+                            id="date"
+                            variant={"outline"}
+                            className={cn(
+                              "w-[300px] justify-start text-left font-normal",
+                              !date && "text-muted-foreground"
+                            )}
                           >
-                            <ListFilter className="h-3.5 w-3.5" />
-                            <span className="sr-only sm:not-sr-only">
-                              Filter
-                            </span>
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {date?.from ? (
+                              date.to ? (
+                                <>
+                                  {format(date.from, "LLL dd, y")} -{" "}
+                                  {format(date.to, "LLL dd, y")}
+                                </>
+                              ) : (
+                                format(date.from, "LLL dd, y")
+                              )
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuCheckboxItem
-                            disabled
-                            checked={depositFilter === "deposited"}
-                            onClick={() => setDepositFilter("deposited")}
-                          >
-                            Deposited
-                          </DropdownMenuCheckboxItem>
-                          <DropdownMenuCheckboxItem
-                            disabled
-                            checked={depositFilter === "pending"}
-                            onClick={() => setDepositFilter("pending")}
-                          >
-                            Pending Deposit
-                          </DropdownMenuCheckboxItem>
-                          <DropdownMenuCheckboxItem
-                            disabled
-                            checked={depositFilter === "all"}
-                            onClick={() => setDepositFilter("all")}
-                          >
-                            All Rounds
-                          </DropdownMenuCheckboxItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={date?.from}
+                            selected={date}
+                            onSelect={setDate}
+                            numberOfMonths={2}
+                          />
+                        </PopoverContent>
+                      </Popover>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-7 gap-1 text-sm"
+                        className="justify-start text-center font-normal h-10"
                       >
                         <File className="h-3.5 w-3.5" />
 
@@ -654,15 +670,49 @@ export default function Dashboard() {
                           </span>
                         )}
                       </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-10 gap-1 text-sm"
+                          >
+                            <File className="h-3.5 w-3.5" />
+                            {isExporting ? (
+                                <span className="sr-only sm:not-sr-only">
+                                  Export in progress...
+                                </span>
+                              ) : (
+                                <span
+                                  className="sr-only sm:not-sr-only"
+                                >
+                                  Export
+                                </span>
+                              )}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Export by</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={exportRounds}>
+                            Export all rounds
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            Export deposit table
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
 
-                  <TabsContent value="all">
+                  <TabsContent value="lastMonth">
                     <Card x-chunk="dashboard-05-chunk-3">
                       <CardHeader className="px-7">
                         <CardTitle>Rounds</CardTitle>
                         <CardDescription>
-                          Recently completed rounds
+                          Rounds taken from {date?.from && prettyDate(date.from.toISOString())}{" "}
+                          to {prettyDate(date?.to?.toISOString() ?? "")}
+
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -722,7 +772,7 @@ export default function Dashboard() {
                     </Card>
                   </TabsContent>
 
-                  <TabsContent value="5">
+                  <TabsContent value="thisMonth">
                     <Card x-chunk="dashboard-05-chunk-3">
                       <CardHeader className="px-7">
                         <CardTitle>Rounds</CardTitle>
@@ -750,34 +800,7 @@ export default function Dashboard() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {rounds.map((round) => (
-                              <TableRow key={round.id}>
-                                <TableCell className="font-medium">
-                                  {prettyDate(round.created_at)}
-                                </TableCell>
-                                <TableCell>
-                                  {sites.get(round.round_site)}
-                                </TableCell>
-                                <TableCell>
-                                  {round.ice_sales_info_stacker}
-                                </TableCell>
-                                <TableCell>{round.created_by}</TableCell>
-                                <TableCell className="text-right">
-                                  {round.ice_sales_info_coin_box}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-8 w-8 mt-2 mr-2"
-                                    onClick={() => handleRoundEdit(round.id)}
-                                  >
-                                    <Pencil className="h-4 w-4" />
-                                    <span className="sr-only">Edit</span>
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            ))}
+                            Not implemented
                           </TableBody>
                         </Table>
                       </CardContent>

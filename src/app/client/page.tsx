@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import Link from "next/link"
 import {
   Bell,
@@ -44,12 +45,17 @@ export default function Dashboard() {
   const [userRole, setUserRole] = useState<number>(0);
   const [activePage, setActivePage] = useState(1)
   const [rounds, setRounds] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   function handleError(error: any) {
     console.error(error)
     router.push("/error?__message=" + btoa(error?.message))
   }
+
+  const lastWeekDate = new Date();
+
+  lastWeekDate.setDate(lastWeekDate.getDate() - 7);
+
 
   async function getUserRoundsCount() {
     const { data: user, error: userError } = await supabase.auth.getUser()
@@ -61,6 +67,8 @@ export default function Dashboard() {
     const { data, error } = await supabase.from("rounds")
       .select("id")
       .eq("created_by", user?.user?.id)
+      .gte('created_at', lastWeekDate.toISOString())
+
 
     if (error) {
       console.error(error)
