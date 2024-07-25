@@ -650,26 +650,6 @@ export default function Dashboard() {
                           />
                         </PopoverContent>
                       </Popover>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="justify-start text-center font-normal h-10"
-                      >
-                        <File className="h-3.5 w-3.5" />
-
-                        {isExporting ? (
-                          <span className="sr-only sm:not-sr-only">
-                            Export in progress...
-                          </span>
-                        ) : (
-                          <span
-                            className="sr-only sm:not-sr-only"
-                            onClick={exportRounds}
-                          >
-                            Export
-                          </span>
-                        )}
-                      </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button

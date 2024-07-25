@@ -28,6 +28,25 @@ const PopoutMenu: React.FC = () => {
         setShowUser(!showUser)
     };
 
+    async function logout() {
+        const { error } = await supabase.auth.signOut()
+        if (error) {
+            console.error(error)
+        }
+    }
+
+    async function getUserMetaTable() {
+        console.log(user.user.email)
+        const { data, error } = await supabase.from('users').select('*').eq('email', user.user.email)
+        if (error) {
+            console.error(error)
+            return
+        }
+        console.log(data)
+        alert(JSON.stringify(data, null, 2))
+    }
+
+
     return (
         <>
             <div className="popout-container">
@@ -37,13 +56,14 @@ const PopoutMenu: React.FC = () => {
                 {isOpen && (
                     <>
                         <div className="popout-menu">
-                            <a href="/logout" className="menu-item">Logout</a>
+                            <span onClick={logout} className="menu-item">Logout</span>
                             <a href="/login" className="menu-item">Login</a>
                             <a href="/frankocean" className="menu-item">Debug Menu</a>
                             <a href="/error" className="menu-item">Error Page</a>
                             <a href="/client" className="menu-item">Client Page</a>
                             <a href="/admin" className="menu-item">Admin Page</a>
                             <button onClick={getUser} className="menu-item">Get User</button>
+                            <button onClick={getUserMetaTable} className="menu-item">Get User Meta Table</button>
                         </div>
                     </>
 

@@ -4,12 +4,14 @@ import { useSearchParams } from 'next/navigation'
 import { AlertCircle } from 'lucide-react'
 import { Suspense } from 'react'
 
+
 function Search() {
   const searchParams = useSearchParams()
   const message = searchParams.get('__message')
 
   return <p className="mt-4 text-gray-800 mb-4">{message ? atob(message) : ''}</p>
 }
+
 
 export default function ErrorPage() {
   return (

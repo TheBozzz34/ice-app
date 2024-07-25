@@ -45,7 +45,8 @@
     "react-hook-form": "^7.51.2",
     "react-router-dom": "^6.25.1",
     "tailwind-merge": "^2.2.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "use-sound": "^4.0.3"
   },
   "devDependencies": {
     "@types/gravatar": "^1.8.6",
