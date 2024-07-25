@@ -16,6 +16,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useState, useEffect } from "react";
 import { Pointer, RefreshCcw } from "lucide-react";
 import { CircularProgress } from "@mui/material";
+import { useRouter } from 'next/navigation'
 
 const sites = new Map([
   [0, "Site 1"],
@@ -34,6 +35,10 @@ function prettyDate(date: string) {
   return new Date(date).toLocaleDateString("en-US");
 }
 
+function arrayToJSON(array: any) {
+  return JSON.parse(JSON.stringify(array));
+}
+
 type Round = {
   id: number;
   created_at: string;
@@ -49,6 +54,7 @@ interface RoundSelectorProps {
 }
 
 export default function Page2() {
+  const router = useRouter()
   const supabase = createClient();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -74,44 +80,113 @@ export default function Page2() {
   lastWeekDate.setDate(lastWeekDate.getDate() - 7);
 
 
-  async function setDepositDate(id: number) {
-    //console.log(date);
-    const user = await getUser();
-    const date = Date.now()
-
-    if (user) {
-      console.log(id)
-
-      /*
-      const { error, data } = await supabase
-          .from('rounds')
-          .update({ wf_deposit_date: date })
-          .eq('id', id)
-          .select()
-
-       */
-
-
-
-
-
-      const { data, error } = await supabase
-        .from('rounds')
-        .update({ wf_deposit_date: new Date() })
-        .eq('id', id)
-        .select()
-
-
-
-
-      if (error) {
-        console.log(error.message);
+  async function depositRounds() {
+    try {
+      const { data: user, error: userError } = await supabase.auth.getUser();
+      if (userError || !user?.user) {
+        router.push('/error?__message=' + btoa('User not authenticated'));
+        console.error("User not authenticated:", userError);
+        return;
       } else {
-        console.log(data);
-        await fetchRounds();
+        console.log(user.user.id);
+    
+        let bills = 0;
+        let coins = 0;
+        let rounds: number[] = [];
+    
+        const coinPromises = selectedRounds.map(async (roundId) => {
+          try {
+            const { data, error } = await supabase
+              .from("rounds")
+              .select("ice_sales_info_coin_box")
+              .eq("id", roundId);
+    
+            if (error) {
+              console.error(`Error fetching coin data for round ${roundId}:`, error);
+            } else {
+              if (data && data.length > 0) {
+                coins += data[0].ice_sales_info_coin_box;
+              } else {
+                console.error(`No coin data found for round ${roundId}`);
+              }
+            }
+          } catch (err) {
+            console.error(`Error processing coin data for round ${roundId}:`, err);
+          }
+        });
+    
+        const billPromises = selectedRounds.map(async (roundId) => {
+          try {
+            const { data, error } = await supabase
+              .from("rounds")
+              .select("ice_sales_info_stacker")
+              .eq("id", roundId);
+    
+            if (error) {
+              console.error(`Error fetching bill data for round ${roundId}:`, error);
+            } else {
+              if (data && data.length > 0) {
+                bills += parseInt(data[0].ice_sales_info_stacker);
+              } else {
+                console.error(`No bill data found for round ${roundId}`);
+              }
+            }
+          } catch (err) {
+            console.error(`Error processing bill data for round ${roundId}:`, err);
+          }
+        });
+    
+        await Promise.all([...coinPromises, ...billPromises]);
+    
+        selectedRounds.forEach((roundId) => {
+          rounds.push(roundId);
+        });
+  
+        rounds = arrayToJSON(rounds);
+    
+        console.log("total bills: " + bills);
+        console.log("total coins: " + coins);
+    
+        console.log("rounds: " + rounds);
+    
+        try {
+          const { data, error } = await supabase
+            .from('deposit')
+            .insert([
+              { user: user?.user?.id, bills: bills, coins: coins, rounds: rounds }
+            ])
+            .select();
+  
+          if (error) {
+            console.error("Error inserting deposit data:", error);
+          }
+        } catch (err) {
+          console.error("Error during deposit insertion:", err);
+        }
       }
+  
+      for (const roundId of selectedRounds) {
+        try {
+          const { data, error } = await supabase
+            .from("rounds")
+            .update({ deposited: true, wf_deposit_date: new Date() })
+            .eq("id", roundId);
+  
+          if (error) {
+            console.error(`Error updating round ${roundId}:`, error);
+          }
+        } catch (err) {
+          console.error(`Error processing round update for ${roundId}:`, err);
+        }
+      }
+    
+      fetchRounds();
+    } catch (err) {
+      console.error("Unexpected error in depositRounds function:", err);
     }
   }
+  
+  
 
   async function getUser() {
     const {
@@ -173,10 +248,7 @@ export default function Page2() {
             <div className="flex flex-col items-center gap-2 sm:flex-row">
               <Button
                 onClick={() => {
-                  selectedRounds.forEach((id) => {
-                    // setDepositDate(id); // This is the function that will update the deposit date
-                    // TODO - Add values to deposit table
-                  });
+                  depositRounds();
                   setSelectedRounds([]);
                 }}
               >
@@ -189,7 +261,7 @@ export default function Page2() {
               </Button>
             </div>
           )}
-  
+
           <Table>
             <TableHeader>
               <TableRow>
@@ -222,7 +294,7 @@ export default function Page2() {
             </TableBody>
           </Table>
         </div>
-  
+
         {isLoading && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-90">
             <CircularProgress color="primary" />
