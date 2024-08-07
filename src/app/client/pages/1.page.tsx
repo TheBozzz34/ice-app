@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -12,6 +13,7 @@ export default function Page1() {
   const [mathDetails, setMathDetails] = useState<string[]>([]);
   const [prevWaterCoin, setPrevWaterCoin] = useState<number | null>(null);
   const supabase = createClient();
+  const router = useRouter();
 
   const [ice_sales_info_stacker, setIceSalesStacker] = useState<number>(0);
   const [ice_sales_info_coin_box, setIceSalesCoinBox] = useState<number>(0);
@@ -97,6 +99,16 @@ export default function Page1() {
       } else {
         console.log(data);
         setButtonMessage("Flow Completed");
+
+        const query = {
+          mathDetails: JSON.stringify([
+            `Total WV Coin: ${tmp}`,
+            `WF Bills Total: ${a} + ${tmp} = ${wf_bills_total}`,
+            `WF Coins Total: ${b} + ${tmp2} = ${wf_coins_total}`,
+          ]),
+        };
+        const queryString = new URLSearchParams(query).toString();
+        router.push(`/confirmation?${queryString}`);
       }
     } else {
       console.log("No rolling value! This is bad.");
