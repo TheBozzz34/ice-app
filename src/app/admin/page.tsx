@@ -120,15 +120,17 @@ export default function Dashboard() {
   }, [supabase]);
 
   const replaceUUIDWithEmail = useCallback(async (rounds: Round[]) => {
+    if (!userId) {
+      console.warn("User ID is undefined, skipping replaceUUIDWithEmail.");
+      return;
+    }
+  
     const updatedEmailToName = new Map(emailToName);
-
+  
     for (const round of rounds) {
       try {
         if (updatedEmailToName.has(round.created_by)) {
           continue;
-        }
-        if (!userId) {
-          userId = (await supabase.auth.getSession()).data.session?.user?.id;
         }
         const response = await axios.get('https://api.scripkitty.store/getuser', {
           params: { 
@@ -141,6 +143,11 @@ export default function Dashboard() {
         console.error("Error fetching user info:", error);
       }
     }
+  
+    setEmailToName(updatedEmailToName);
+    console.log("Email to name:", emailToName);
+  }, [emailToName, userId]);
+  
 
     setEmailToName(updatedEmailToName);
     console.log("Email to name:", emailToName);
