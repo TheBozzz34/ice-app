@@ -86,6 +86,7 @@ export default function Dashboard() {
   const [currentRound, setCurrentRound] = useState<number | null>(null);
   const [rounds, setRounds] = useState<Round[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isUserIdSet, setIsUserIdSet] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [selectedSite, setSelectedSite] = useState(1);
   const [triggerValue, setTriggerValue] = useState(0);
@@ -98,43 +99,43 @@ export default function Dashboard() {
       if (!jwt) {
         throw new Error("No JWT found");
       }
-
+  
       const response = await fetch("/api/rounds", {
         method: "GET",
         headers: { Authorization: `Bearer ${jwt}` },
       });
-
+  
       if (!response.ok) {
         throw new Error("Failed to fetch rounds");
       }
-
+  
       const data: Round[] = await response.json();
       setRounds(data);
-
+  
       await replaceUUIDWithEmail(data);
     } catch (error) {
       console.error("Error fetching rounds:", error);
     } finally {
       setIsFetchingRounds(false);
     }
-  }, [supabase]);
+  }, [supabase, userId]); // Add userId as a dependency
 
   const replaceUUIDWithEmail = useCallback(async (rounds: Round[]) => {
     if (!userId) {
       console.warn("User ID is undefined, skipping replaceUUIDWithEmail.");
       return;
     }
-  
+
     const updatedEmailToName = new Map(emailToName);
-  
+
     for (const round of rounds) {
       try {
         if (updatedEmailToName.has(round.created_by)) {
           continue;
         }
         const response = await axios.get('https://api.scripkitty.store/getuser', {
-          params: { 
-            uuid: round.created_by, 
+          params: {
+            uuid: round.created_by,
             userId: userId
           }
         });
@@ -143,15 +144,11 @@ export default function Dashboard() {
         console.error("Error fetching user info:", error);
       }
     }
-  
-    setEmailToName(updatedEmailToName);
-    console.log("Email to name:", emailToName);
-  }, [emailToName, userId]);
-  
 
     setEmailToName(updatedEmailToName);
     console.log("Email to name:", emailToName);
   }, [emailToName, userId]);
+
 
   const auth = useCallback(async () => {
     try {
@@ -165,6 +162,7 @@ export default function Dashboard() {
         throw new Error("No user ID found");
       }
       setUserId(userId);
+      setIsUserIdSet(true);  // Trigger that the userId is now set
 
       const { data: userRoles, error: userRolesError } = await supabase
         .from("users")
@@ -185,7 +183,6 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error("Authentication error:", error);
-      //handleRedirection();
     }
   }, [supabase]);
 
@@ -236,6 +233,13 @@ export default function Dashboard() {
       auth();
     }
   }, [hasAuthenticated, auth, fetchData]);
+
+  // New useEffect that triggers replaceUUIDWithEmail only when userId is set
+  useEffect(() => {
+    if (isUserIdSet) {
+      fetchData(); // Ensure rounds are fetched after the userId is set
+    }
+  }, [isUserIdSet]);
 
   function prettyDate(date: string) {
     return new Date(date).toLocaleDateString("en-US");
@@ -598,16 +602,16 @@ export default function Dashboard() {
                           >
                             <File className="h-3.5 w-3.5" />
                             {isExporting ? (
-                                <span className="sr-only sm:not-sr-only">
-                                  Export in progress...
-                                </span>
-                              ) : (
-                                <span
-                                  className="sr-only sm:not-sr-only"
-                                >
-                                  Export
-                                </span>
-                              )}
+                              <span className="sr-only sm:not-sr-only">
+                                Export in progress...
+                              </span>
+                            ) : (
+                              <span
+                                className="sr-only sm:not-sr-only"
+                              >
+                                Export
+                              </span>
+                            )}
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
