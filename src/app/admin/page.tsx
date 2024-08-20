@@ -128,7 +128,7 @@ export default function Dashboard() {
           continue;
         }
         if (!userId) {
-          throw new Error("No user ID found");
+          userId = (await supabase.auth.getSession()).data.session?.user?.id;
         }
         const response = await axios.get('https://api.scripkitty.store/getuser', {
           params: { 
