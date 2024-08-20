@@ -124,7 +124,7 @@ export default function Dashboard() {
 
     for (const round of rounds) {
       try {
-        const response = await axios.get('http://localhost:3001/getuser', {
+        const response = await axios.get('https://api.scripkitty.store/getuser', {
           params: { 
             uuid: round.created_by, 
             userId: userId
