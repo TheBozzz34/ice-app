@@ -124,6 +124,12 @@ export default function Dashboard() {
 
     for (const round of rounds) {
       try {
+        if (updatedEmailToName.has(round.created_by)) {
+          continue;
+        }
+        if (!userId) {
+          throw new Error("No user ID found");
+        }
         const response = await axios.get('https://api.scripkitty.store/getuser', {
           params: { 
             uuid: round.created_by, 
