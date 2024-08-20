@@ -1,100 +1,56 @@
 "use client";
 
+import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  Copy,
-  CreditCard,
-  File,
-  Home,
-  LineChart,
-  ListFilter,
-  MoreVertical,
-  Package,
-  Package2,
-  PanelLeft,
-  Search,
-  Settings,
-  ShoppingCart,
-  Truck,
-  Users2,
-  User,
-  Circle,
-  Bug
+  ChevronLeft, ChevronRight, ChevronDown, Copy, CreditCard, File,
+  Home, LineChart, ListFilter, MoreVertical, Package, Package2,
+  PanelLeft, Search, Settings, ShoppingCart, Truck, Users2, User, Circle, Bug, Pencil
 } from "lucide-react";
 
-import * as React from "react"
-import { addDays, format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
-import { DateRange } from "react-day-picker"
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { addDays, format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
-import { cn } from "@/lib/utils"
-import { Calendar } from "@/components/ui/calendar"
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-
-
+  Popover, PopoverContent, PopoverTrigger,
+} from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+  Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList,
+  BreadcrumbPage, BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+  Card, CardContent, CardDescription, CardFooter,
+  CardHeader, CardTitle,
 } from "@/components/ui/card";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent,
+  DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
+  Pagination, PaginationContent, PaginationItem,
 } from "@/components/ui/pagination";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
+  Tooltip, TooltipContent, TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { CircularProgress } from "@mui/material"; // Import CircularProgress from Material UI
+
 import { RoundView } from "@/app/admin/components/rounds.component";
 import { createClient } from "@/utils/supabase/client";
-import { useEffect, useState } from "react";
-import { Pencil } from "lucide-react";
-import { CircularProgress } from "@mui/material"; // Import CircularProgress from Material UI
 
 type Round = {
   id: number;
@@ -105,11 +61,7 @@ type Round = {
   ice_sales_info_coin_box: number;
 };
 
-function prettyDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US");
-}
-
-const sites = new Map([
+const sites = new Map<number, string>([
   [0, "Pojoaque"],
   [1, "Alameda"],
   [2, "Moriarty"],
@@ -120,104 +72,77 @@ const sites = new Map([
   [7, "Edgewood"],
 ]);
 
-const sitesReverse = new Map(
-  Array.from(sites.entries()).map(([k, v]) => [v, k]),
-);
-
-const sitesArray = Array.from(sites.entries());
-
 const ROLE_THRESHOLD = 25565;
-
-function trigger() {
-  return Math.ceil(Math.random() * 1000);
-}
 
 export default function Dashboard() {
   const supabase = createClient();
 
-  const [isFetchingRounds, setIsFetchingRounds] = useState(false); // New state variable for fetching status
-  const [hasClicked, setHasClicked] = useState(false);
+  const [isFetchingRounds, setIsFetchingRounds] = useState(false);
   const [hasAuthenticated, setHasAuthenticated] = useState(false);
-
-  const now = new Date();
-  const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfPreviousMonth = new Date(startOfCurrentMonth);
-  startOfPreviousMonth.setMonth(startOfPreviousMonth.getMonth() - 1);
-  const endOfPreviousMonth = new Date(startOfCurrentMonth);
-
-
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: startOfPreviousMonth,
-    to: endOfPreviousMonth,
-  })
-
-  useEffect(() => {
-    // log the date range
-    console.log(date)
-  }, [date])
-
-  function handleRedirection() {
-    //redirect('/login');
-    console.log("redirecting to login");
-  }
-
-  function handleError(error: any) {
-    console.error(error);
-    handleRedirection();
-  }
-
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+    to: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  });
   const [currentRound, setCurrentRound] = useState<number | null>(null);
-
   const [rounds, setRounds] = useState<Round[]>([]);
-
   const [userId, setUserId] = useState<string | null>(null);
-
   const [isExporting, setIsExporting] = useState(false);
-
-  const [depositFilter, setDepositFilter] = useState("all");
-
   const [selectedSite, setSelectedSite] = useState(1);
-
   const [triggerValue, setTriggerValue] = useState(0);
+  const [emailToName, setEmailToName] = useState<Map<string, string>>(new Map());
 
-  useEffect(() => {
-    async function fetchData() {
+  const fetchData = useCallback(async () => {
+    try {
+      setIsFetchingRounds(true);
+      const jwt = (await supabase.auth.getSession()).data.session?.access_token;
+      if (!jwt) {
+        throw new Error("No JWT found");
+      }
+
+      const response = await fetch("/api/rounds", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${jwt}` },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch rounds");
+      }
+
+      const data: Round[] = await response.json();
+      setRounds(data);
+
+      await replaceUUIDWithEmail(data);
+    } catch (error) {
+      console.error("Error fetching rounds:", error);
+    } finally {
+      setIsFetchingRounds(false);
+    }
+  }, [supabase]);
+
+  const replaceUUIDWithEmail = useCallback(async (rounds: Round[]) => {
+    const updatedEmailToName = new Map(emailToName);
+
+    for (const round of rounds) {
       try {
-        setIsFetchingRounds(true);
-        const jwt = (await supabase.auth.getSession()).data.session
-          ?.access_token;
-        if (!jwt) {
-          throw new Error("No JWT found");
-        }
-        const response = await fetch("/api/rounds", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${jwt}`,
-          },
+        const response = await axios.get('http://localhost:3001/getuser', {
+          params: { 
+            uuid: round.created_by, 
+            userId: userId
+          }
         });
-        if (!response.ok) {
-          throw new Error("Failed to fetch rounds");
-        }
-        const data = await response.json();
-        setRounds(data);
+        updatedEmailToName.set(round.created_by, response.data.user.user_metadata.first_name + ' ' + response.data.user.user_metadata.last_name);
       } catch (error) {
-        console.error("Error fetching rounds:", error);
-      } finally {
-        setIsFetchingRounds(false);
+        console.error("Error fetching user info:", error);
       }
     }
 
-    if (hasAuthenticated) {
-      fetchData();
-    } else {
-      auth();
-    }
-  }, [hasAuthenticated]);
+    setEmailToName(updatedEmailToName);
+    console.log("Email to name:", emailToName);
+  }, [emailToName, userId]);
 
-  async function auth() {
+  const auth = useCallback(async () => {
     try {
-      const { data: authData, error: authError } =
-        await supabase.auth.getUser();
+      const { data: authData, error: authError } = await supabase.auth.getUser();
       if (authError) {
         throw authError;
       }
@@ -240,7 +165,6 @@ export default function Dashboard() {
       if (userRoles && userRoles.length > 0) {
         const userRole = userRoles[0].role;
         if (typeof userRole === "number" && userRole >= ROLE_THRESHOLD) {
-          console.log("User is authenticated with role:", userRole);
           setHasAuthenticated(true);
         }
       } else {
@@ -248,60 +172,62 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error("Authentication error:", error);
-      handleRedirection(); // Handle redirection or error as needed
+      //handleRedirection();
     }
+  }, [supabase]);
+
+  function trigger() {
+    return Math.ceil(Math.random() * 1000);
   }
 
-  function handleRoundEdit(roundId: number) {
+  const handleRoundEdit = useCallback((roundId: number) => {
     setCurrentRound(roundId);
     setTriggerValue(trigger());
+  }, []);
 
-    console.log("Editing round:", currentRound);
-  }
+  const exportRounds = useCallback(async () => {
+    if (isExporting) return;
 
-  async function exportRounds() {
-    if (isExporting) {
-      return;
-    }
-
-    setIsExporting(true);
-    const response = await fetch("https://api.scripkitty.store/export", {
-      // this is so shit
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: userId,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        return response.blob(); // need error checking here
-      })
-      .then((blob) => {
-        // Create a temporary URL for the blob and trigger download
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.style.display = "none";
-        a.href = url;
-        a.download = "rounds.csv";
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((error) => {
-        console.error("There was a problem with the request:", error);
-      })
-      .finally(() => {
-        setIsExporting(false);
+    try {
+      setIsExporting(true);
+      const response = await fetch("https://api.scripkitty.store/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to export rounds");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = "rounds.csv";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting rounds:", error);
+    } finally {
+      setIsExporting(false);
+    }
+  }, [isExporting, userId]);
+
+  useEffect(() => {
+    if (hasAuthenticated) {
+      fetchData();
+    } else {
+      auth();
+    }
+  }, [hasAuthenticated, auth, fetchData]);
+
+  function prettyDate(date: string) {
+    return new Date(date).toLocaleDateString("en-US");
   }
 
-  const [emailToName, setEmailToName] = useState(new Map<string, string>());
 
 
   /*
@@ -726,7 +652,7 @@ export default function Dashboard() {
                                 <TableCell>
                                   {sites.get(round.round_site)}
                                 </TableCell>
-                                <TableCell>{round.created_by}</TableCell>
+                                <TableCell>{emailToName.get(round.created_by)}</TableCell>
                                 <TableCell>
                                   {round.ice_sales_info_stacker}
                                 </TableCell>

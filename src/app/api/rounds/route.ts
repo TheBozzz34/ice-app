@@ -35,19 +35,21 @@ export async function GET(request: Request) {
   const endOfPreviousMonthISO = endOfPreviousMonth.toISOString();
 
   //TODO- switch between these two queries
+  /*
   const { data, error } = await supabase
     .from("rounds")
     .select("*")
     .gte('created_at', startOfPreviousMonthISO)
     .lt('created_at', endOfPreviousMonthISO)
     .order("created_at", { ascending: false });
+    */
 
-  /*
+  
     const { data, error } = await supabase
     .from("rounds")
     .select("*")
     .order("created_at", { ascending: false })
-    */
+    
 
   if (error) {
     console.error(error);
