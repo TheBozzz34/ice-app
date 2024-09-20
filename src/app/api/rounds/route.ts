@@ -17,9 +17,6 @@ export async function GET(
   const to = searchParams.get("to");
 
 
-  console.log("Request headers:", req.headers);
-
-
   const authorizationHeader = headersList.get('authorization');
   if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
     return new Response(
