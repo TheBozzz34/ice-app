@@ -1,66 +1,83 @@
 import { createClient } from "@/utils/supabase/server";
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { headers } from 'next/headers'
 
 export const dynamic = "force-dynamic"; // defaults to auto
 
-export async function GET(request: Request) {
+
+export async function GET(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const headersList = headers()
+  const searchParams = req.url ? new URLSearchParams(req.url.split("?")[1]) : new URLSearchParams();
   const supabase = createClient();
 
-  const jwt = request.headers.get("Authorization")?.replace("Bearer ", ""); // need to use jwt
-  const site = request.headers.get("Site");
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
 
-  if (!jwt) {
-    return new Response("Unauthorized", {
-      status: 401,
-    });
+
+  console.log("Request headers:", req.headers);
+
+
+  const authorizationHeader = headersList.get('authorization');
+  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
+    return new Response(
+      JSON.stringify({ error: "Missing or invalid authorization header" }),
+      {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 
+  const jwt = authorizationHeader.split(" ")[1]; // Extract the token
+
+  
   const {
     data: { user },
   } = await supabase.auth.getUser(jwt);
 
+  // Check if user is authenticated
   if (!user || user === null) {
-    return new Response("Unauthorized", {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
+      headers: { "Content-Type": "application/json" },
     });
   }
 
-  // Get rounds from last month
-  const now = new Date();
-  const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfPreviousMonth = new Date(startOfCurrentMonth);
-  startOfPreviousMonth.setMonth(startOfPreviousMonth.getMonth() - 1);
-  const endOfPreviousMonth = new Date(startOfCurrentMonth);
+  // Check for missing date range
+  if (!from || !to) {
+    return new Response(
+      JSON.stringify({ error: "Missing date range" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
 
-  const startOfPreviousMonthISO = startOfPreviousMonth.toISOString();
-  const endOfPreviousMonthISO = endOfPreviousMonth.toISOString();
+  const fromDate = new Date(from as string);
+  const toDate = new Date(to as string);
 
-  //TODO- switch between these two queries
-  /*
+  // Fetch rounds from the database within the date range
   const { data, error } = await supabase
     .from("rounds")
     .select("*")
-    .gte('created_at', startOfPreviousMonthISO)
-    .lt('created_at', endOfPreviousMonthISO)
-    .order("created_at", { ascending: false });
-    */
-
-  
-    const { data, error } = await supabase
-    .from("rounds")
-    .select("*")
-    .order("created_at", { ascending: false })
-    
+    .gte("created_at", fromDate.toISOString())
+    .lte("created_at", toDate.toISOString());
 
   if (error) {
-    console.error(error);
-    return new Response("Failed to get rounds", {
+    console.error("Error fetching rounds:", error);
+    return new Response(JSON.stringify({ error: "Error fetching rounds" }), {
       status: 500,
-    });
-  } else {
-    return new Response(JSON.stringify(data), {
-      headers: {
-        "content-type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
   }
+
+  // Send the retrieved data as a JSON response
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 }

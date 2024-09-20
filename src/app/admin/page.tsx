@@ -100,7 +100,11 @@ export default function Dashboard() {
         throw new Error("No JWT found");
       }
   
-      const response = await fetch("/api/rounds", {
+      // Convert the date to ISO strings for use in the query parameters
+      const fromDate = date?.from ? date.from.toISOString() : "";
+      const toDate = date?.to?.toISOString() ?? "";
+  
+      const response = await fetch(`/api/rounds?from=${encodeURIComponent(fromDate)}&to=${encodeURIComponent(toDate)}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${jwt}` },
       });
@@ -118,7 +122,8 @@ export default function Dashboard() {
     } finally {
       setIsFetchingRounds(false);
     }
-  }, [supabase, userId]); // Add userId as a dependency
+  }, [supabase, userId, date]);
+  
 
   const replaceUUIDWithEmail = useCallback(async (rounds: Round[]) => {
     if (!userId) {
@@ -282,6 +287,10 @@ export default function Dashboard() {
     }, [])
 
    */
+
+    useEffect(() => {
+      console.log('Date range:', date);
+    } , [date]);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
