@@ -225,6 +225,9 @@ export default function Dashboard() {
               )}
               <DropdownMenuSeparator />
               <DropdownMenuItem>
+                <a href="/settings">Settings</a>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
                 <a href="/logout">Logout</a>
               </DropdownMenuItem>
             </DropdownMenuContent>

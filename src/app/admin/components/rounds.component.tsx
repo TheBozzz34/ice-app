@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/pagination"
 import { useState, useEffect } from "react"
 import { createClient } from "@/utils/supabase/client"
+import { Input } from "@/components/ui/input";
 
 type Round = {
   id: number
@@ -71,6 +72,12 @@ export function RoundView(roundId: any, trigger: number) { // need to type
   const [round, setRound] = useState<Round>();
   const [site, setSite] = useState<Site>();
   const [showing, setShowing] = useState(true);
+  const [hasEdited, setHasEdited] = useState(false);
+
+  const [editedRound, setEditedRound] = useState<Partial<Round>>({
+    water_bills_calc_total: 0,
+    water_coin_calc_total: 0
+  });
 
   async function deleteRound(id: number) {
     console.log("deleting round: " + id);
@@ -140,8 +147,18 @@ export function RoundView(roundId: any, trigger: number) { // need to type
     }
   }
 
+  useEffect(() => {
+    // check if editedRound is different from round
+    if (editedRound.water_bills_calc_total !== round?.water_bills_calc_total || editedRound.water_coin_calc_total !== round?.water_coin_calc_total) {
+      setHasEdited(true);
+    } else {
+      setHasEdited(false);
+    }
+    console.log("editedRound: ", editedRound);
+  }, [editedRound, round?.water_bills_calc_total, round?.water_coin_calc_total]);
+
   if (!round) {
-    return;
+    return null;
   }
 
   return (
@@ -204,11 +221,11 @@ export function RoundView(roundId: any, trigger: number) { // need to type
                     <ul className="grid gap-3">
                       <li className="flex items-center justify-between">
                         <span className="text-muted-foreground">Deposited Bills</span>
-                        <span>${round?.water_bills_calc_total}</span>
+                        <Input type="number" placeholder={round?.water_bills_calc_total.toString()} onChange={(e) => setEditedRound({ ...editedRound, water_bills_calc_total: parseInt(e.target.value) })} />
                       </li>
                       <li className="flex items-center justify-between">
                         <span className="text-muted-foreground">Deposited Coins</span>
-                        <span>${round?.water_coin_calc_total}</span>
+                        <Input type="number" placeholder={round?.water_coin_calc_total.toString()} onChange={(e) => setEditedRound({ ...editedRound, water_coin_calc_total: parseInt(e.target.value) })} />
                       </li>
                       <li>
                         <DropdownMenu>
@@ -258,6 +275,15 @@ export function RoundView(roundId: any, trigger: number) { // need to type
                     </PaginationContent>
                   </Pagination>
                 </CardFooter>
+                <Separator className="my-4" />
+                <Button
+                    size="lg"
+                    className="w-full"
+                    disabled={!hasEdited}
+                    onClick={() => setDepositDate(round.wf_deposit_date)}
+                >
+                  Save Changes
+                </Button>
               </Card>
             </div>
         )}
